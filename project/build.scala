@@ -11,7 +11,7 @@ object CarrdenInventoryBuild extends Build {
   val Version = "0.0.0"
   val ScalaVersion = "2.11.4"
   val ScalatraVersion = "2.3.0"
-  val SlickVersion = "3.0.0"
+  val SlickVersion = "3.0.0-M1"
 
   lazy val project = Project (
     "carrden-inventory",

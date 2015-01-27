@@ -18,7 +18,7 @@ Build & Run
 -----------
 
 ```sh
-$ cd Carrden_Inventory
+$ cd carrden
 $ ./sbt
 > container:start
 > browse

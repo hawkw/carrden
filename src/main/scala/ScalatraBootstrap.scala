@@ -21,6 +21,7 @@ class ScalatraBootstrap extends LifeCycle {
   override def init(context: ServletContext) {
     val db = Database.forDataSource(cpds)     // create a Database which uses the DataSource
     context.mount(CarrdenInventory(db), "/*") // mount the application and provide the Database
+    context.mount(CarrdenAdmin(db), "/admin/*") // mount the admin app and provide the Database
   }
 
   private def closeDbConnection() {

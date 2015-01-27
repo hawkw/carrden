@@ -13,3 +13,11 @@ case class CarrdenInventory(db: Database) extends CarrdenInventoryStack {
   }
   
 }
+case class CarrdenAdmin(db: Database) extends CarrdenInventoryStack {
+
+  get("/") {
+    contentType="text/html"
+    jade("admin")
+  }
+
+}

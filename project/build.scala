@@ -11,6 +11,7 @@ object CarrdenInventoryBuild extends Build {
   val Version = "0.0.0"
   val ScalaVersion = "2.11.4"
   val ScalatraVersion = "2.3.0"
+  val SlickVersion = "3.0.0"
 
   lazy val project = Project (
     "carrden-inventory",
@@ -22,13 +23,14 @@ object CarrdenInventoryBuild extends Build {
       scalaVersion := ScalaVersion,
       resolvers += Classpaths.typesafeReleases,
       libraryDependencies ++= Seq(
-        "org.scalatra" %% "scalatra" % ScalatraVersion,
-        "org.scalatra" %% "scalatra-scalate" % ScalatraVersion,
-        "org.scalatra" %% "scalatra-specs2" % ScalatraVersion % "test",
-        "ch.qos.logback" % "logback-classic" % "1.1.2" % "runtime",
-        "org.eclipse.jetty" % "jetty-webapp" % "9.1.5.v20140505" % "container",
-        "org.eclipse.jetty" % "jetty-plus" % "9.1.5.v20140505" % "container",
-        "javax.servlet" % "javax.servlet-api" % "3.1.0"
+        "org.scalatra"        %%  "scalatra"          % ScalatraVersion,
+        "org.scalatra"        %%  "scalatra-scalate"  % ScalatraVersion,
+        "org.scalatra"        %%  "scalatra-specs2"   % ScalatraVersion   % "test",
+        "com.typesafe.slick"  %%  "slick"             % SlickVersion,
+        "ch.qos.logback"      %   "logback-classic"   % "1.1.2"           % "runtime",
+        "org.eclipse.jetty"   %   "jetty-webapp"      % "9.1.5.v20140505" % "container",
+        "org.eclipse.jetty"   %   "jetty-plus"        % "9.1.5.v20140505" % "container",
+        "javax.servlet"       %   "javax.servlet-api" % "3.1.0"
       ),
       scalateTemplateConfig in Compile <<= (sourceDirectory in Compile){ base =>
         Seq(

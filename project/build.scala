@@ -27,6 +27,8 @@ object CarrdenInventoryBuild extends Build {
         "org.scalatra"        %%  "scalatra-scalate"  % ScalatraVersion,
         "org.scalatra"        %%  "scalatra-specs2"   % ScalatraVersion   % "test",
         "com.typesafe.slick"  %%  "slick"             % SlickVersion,
+        "com.h2database"      %   "h2"                % "1.3.166",
+        "c3p0"                %   "c3p0"              % "0.9.1.2",
         "ch.qos.logback"      %   "logback-classic"   % "1.1.2"           % "runtime",
         "org.eclipse.jetty"   %   "jetty-webapp"      % "9.1.5.v20140505" % "container",
         "org.eclipse.jetty"   %   "jetty-plus"        % "9.1.5.v20140505" % "container",

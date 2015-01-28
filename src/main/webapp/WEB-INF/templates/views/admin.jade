@@ -1,5 +1,26 @@
+-@ val inventory: List[String]
+
 - attributes("title") = "Carrden Inventory Admin"
 div.jumbotron.masthead
     div.container
         h1 Carrden Inventory Administration
-        p LOL INSERT ADMIN JUNK HERE
+        p Push some of these buttons to do stuff
+        div.btn-group
+            a(
+                class='btn btn-primary'
+                role='button'
+                href='/admin/db/create-tables/') Initialize tables
+            a(
+                class='btn btn-primary'
+                role='button'
+                href='/admin/db/load-test-data/') Load test data
+            a(
+                class='btn btn-danger'
+                role='button'
+                href='/admin/db/drop-tables/') DESTROY EVERYTHING
+div.container
+    div(class="panel panel-default")
+        div.panel-heading Current inventory
+        ul(class='list-group')
+            - for( item <- inventory)
+                li(class='list-group-item')= item

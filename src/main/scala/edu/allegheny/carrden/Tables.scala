@@ -15,6 +15,6 @@ object Tables {
     def * = (name,count,price)
   }
 
-  val suppliers = TableQuery[Produce]
+  val produce = TableQuery[Produce]
 
 }

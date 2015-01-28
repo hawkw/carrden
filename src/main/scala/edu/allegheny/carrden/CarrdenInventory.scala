@@ -9,6 +9,7 @@ import org.json4s.{DefaultFormats, Formats}
 import scalate.ScalateSupport
 import scala.slick.driver.H2Driver.simple._
 import scala.slick.jdbc.JdbcBackend.Database.dynamicSession
+import scala.util.{Try, Success, Failure}
 
 case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with JacksonJsonSupport  {
 
@@ -22,7 +23,10 @@ case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with Jac
     jade(
         "main",
         "inventory" -> db.withDynSession {
-          produce.list.map { case (name, num, price) => s"We have $num $name and they cost $price dollars"}
+          produce.list.map {
+            case (name, num, price) =>
+              s"We have $num $name and they cost $price dollars"
+          }
         },
         "produceKinds" -> db.withDynSession { produce.map(_.name).list }
     )
@@ -31,12 +35,14 @@ case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with Jac
   get("/produce") {
     db withDynSession {
       contentType = "text/html"
-      produce.list.map { case (name, num, price) => s"We have $num $name and they cost $price dollars"} mkString "<br />"
+      produce.list.map {
+        case (name, num, price) =>
+          s"We have $num $name and they cost $price dollars"} mkString "<br />"
     }
   }
 
   post("sale/") {
-    //contentType=formats("json")
+    contentType=formats("json")
     val date    = new Date(System.currentTimeMillis())
     val sold    = parsedBody.extract[Sale].sold
     db withDynTransaction { // start a new transaction
@@ -60,7 +66,8 @@ case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with Jac
           )
         }
       sales ++= processed // insert rows into the DB
-      SaleResult(processed.map(_._5).sum) // reply to the client w/ the cost
+      Ok(SaleResult(processed.map(_._5).sum)) // reply to the client w/ the cost (wrapped in a 200 OK)
+      // TODO: send error codes on fail
       }
     }
 }
@@ -80,11 +87,23 @@ case class CarrdenAdmin(db: Database) extends CarrdenInventoryStack {
   }
 
   post("/db/create-tables/") {
-    db withDynSession ( produce.ddl ++ sales.ddl).create
+    Try(
+      db withDynSession ( produce.ddl ++ sales.ddl).create
+    ) match {
+      case Success(_) => Created("tables created successfully")
+      // TODO: match possible reasons tables could not be created
+      case Failure(why) => InternalServerError(why.toString)
+    }
   }
 
   delete("/db/drop-tables/") {
-    db withDynSession (produce.ddl ++ sales.ddl).drop
+    Try(
+      db withDynSession ( produce.ddl ++ sales.ddl ).drop
+    ) match {
+      case Success(_) => Ok("tables dropped successfully")
+      // TODO: match possible reasons tables could not be dropped
+      case Failure(why) => InternalServerError(why.toString)
+    }
   }
 
   post("/db/load-test-data/") {

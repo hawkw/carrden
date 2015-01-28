@@ -33,7 +33,7 @@ case class CarrdenAdmin(db: Database) extends CarrdenInventoryStack {
   get("/") {
     contentType="text/html"
     jade("admin", "inventory" -> db.withDynSession {
-      produce.list.map { case (name, num, price) => s"We have $num $name and they cost $price dollars"}
+      (produce.list.map { case (name, num, price) => (name -> num) }).toMap
     })
   }
 

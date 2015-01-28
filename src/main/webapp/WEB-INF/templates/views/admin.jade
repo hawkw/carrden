@@ -1,4 +1,4 @@
--@ val inventory: List[String]
+-@ val inventory: Map[String, Int]
 
 - attributes("title") = "Carrden Inventory Admin"
 div.jumbotron.masthead
@@ -7,19 +7,19 @@ div.jumbotron.masthead
         p Push some of these buttons to do stuff
         div.btn-group
             a(
-                class='btn btn-default btn-lg'
+                class='btn btn-default'
                 role='button'
                 href='/admin/db/create-tables/')
                 span.glyphicon.glyphicon-file
                 span Initialize tables
             a(
-                class='btn btn-default btn-lg'
+                class='btn btn-default'
                 role='button'
                 href='/admin/db/load-test-data/')
                 span.glyphicon.glyphicon-save-file
                 span Load test data
             a(
-                class='btn btn-danger btn-lg'
+                class='btn btn-danger'
                 role='button'
                 href='/admin/db/drop-tables/')
                 span.glyphicon.glyphicon-trash
@@ -27,6 +27,8 @@ div.jumbotron.masthead
 div.container
     div(class="panel panel-default")
         div.panel-heading Current inventory
-        ul(class='list-group')
-            - for( item <- inventory)
-                li.list-group-item=item
+        ul.list-group
+            - for( (item, count) <- inventory)
+                li.list-group-item
+                    span.badge=count
+                    =item

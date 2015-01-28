@@ -35,15 +35,15 @@ case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with Jac
     }
   }
 
-  get("sale/") {
-    contentType=formats("json")
+  post("sale/") {
+    //contentType=formats("json")
     val date    = new Date(System.currentTimeMillis())
     val sold    = parsedBody.extract[Sale].sold
     db withDynTransaction { // start a new transaction
       // (if 2+ point-of-sale clients are connected, we don't want
       // them to try to add sales with the same number)
       val saleNum = sales       // the sale number is equal to...
-        .filter(_.date == date) // get all sale records for today
+        .filter(_.date === date) // get all sale records for today
         .map(_.saleNum)         // extract the sale numbers
         .list
         .max +1                 // find the last sale number & increment
@@ -54,7 +54,7 @@ case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with Jac
           item,
           count,
           produce // get the current price for that produce item
-            .filter(_.name == item) // select the row for this item
+            .filter(_.name === item) // select the row for this item
             .map(_.price)           // extract the price
             .first * count          // multiply by the amount sold
           )
@@ -68,16 +68,26 @@ case class CarrdenAdmin(db: Database) extends CarrdenInventoryStack {
 
   get("/") {
     contentType="text/html"
-    jade("admin", "inventory" -> db.withDynSession {
-      (produce.list.map { case (name, num, price) => (name -> num) }).toMap
-    })
+    jade(
+      "admin",
+      "inventory" -> db.withDynSession {
+        produce.list.map { case (name, num, price) => name -> num }.toMap
+      },
+      "sales" -> db.withDynSession {
+        sales.list
+      }
+    )
   }
 
-  get("/db/create-tables/") {
-    db withDynSession { produce.ddl.create }
+  post("/db/create-tables/") {
+    db withDynSession ( produce.ddl ++ sales.ddl).create
   }
 
-  get("/db/load-test-data/") {
+  delete("/db/drop-tables/") {
+    db withDynSession (produce.ddl ++ sales.ddl).drop
+  }
+
+  post("/db/load-test-data/") {
     db withDynSession {
       produce insertAll (
         ("To-may-to", 30, 1.25),

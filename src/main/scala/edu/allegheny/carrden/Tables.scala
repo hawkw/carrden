@@ -19,7 +19,7 @@ object Tables {
 
   val produce = TableQuery[Produce]
 
-  class Sales(tag: Tag) extends Table[(Date, Int,String,Int,Double)](tag,"PRODUCE") {
+  class Sales(tag: Tag) extends Table[(Date, Int,String,Int,Double)](tag,"SALES") {
     def date    = column[Date]("DATE", O.NotNull)
     def saleNum = column[Int]("SALE_NUM", O.NotNull)
     def item    = column[String]("ITEM", O.NotNull)

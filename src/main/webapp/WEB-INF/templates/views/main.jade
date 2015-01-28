@@ -1,4 +1,5 @@
 -@ val inventory: List[String]
+-@ val produceKinds: List[String]
 
 - attributes("title") = "Carrden Inventory"
 div.jumbotron.masthead
@@ -7,7 +8,7 @@ div.jumbotron.masthead
         p Push some of these buttons to do stuff
         button(
         data-toggle='modal'
-        data-target='#sale-modal'
+        data-target='#sale'
         class='btn btn-primary btn-lg')
             span(class='glyphicon glyphicon-edit')
             span Enter Sale
@@ -33,11 +34,11 @@ div.jumbotron.masthead
 div.container
 
     div(
-        class='modal fade'
-        id='sale-modal'
+        class='modal'
+        id='sale'
         role='dialog'
         tabindex='-1'
-        aria-labelledby='myModalLabel'
+        aria-labelledby='Sale'
         aria-hidden='true')
         div.modal-dialog
             div.modal-content
@@ -49,11 +50,21 @@ div.container
                     h2 Sale
                 div.modal-body
                     form(
-                    class='form-horizontal well'
-                            data-async data-target='#rating-modal'
-                            action='/some-endpoint'
-                            method='POST')
-                        fieldset
+                        class='form-horizontal well'
+                        data-async data-target='#salel'
+                        action='/some-endpoint'
+                        method='POST')
+                        ul
+                            - for (kind <- produceKinds)
+                                li(style='list-style-type: none;padding: 10px;')
+                                    div.input-group
+                                        div.input-group-addon
+                                            =kind
+                                        input(
+                                            type='text'
+                                            class='form-control'
+                                            placeholder='amount')
+
                 div.modal-footer
                     div(
                     class='btn-group'

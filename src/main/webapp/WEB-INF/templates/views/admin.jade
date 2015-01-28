@@ -7,20 +7,26 @@ div.jumbotron.masthead
         p Push some of these buttons to do stuff
         div.btn-group
             a(
-                class='btn btn-primary'
+                class='btn btn-default btn-lg'
                 role='button'
-                href='/admin/db/create-tables/') Initialize tables
+                href='/admin/db/create-tables/')
+                span.glyphicon.glyphicon-file
+                span Initialize tables
             a(
-                class='btn btn-primary'
+                class='btn btn-default btn-lg'
                 role='button'
-                href='/admin/db/load-test-data/') Load test data
+                href='/admin/db/load-test-data/')
+                span.glyphicon.glyphicon-save-file
+                span Load test data
             a(
-                class='btn btn-danger'
+                class='btn btn-danger btn-lg'
                 role='button'
-                href='/admin/db/drop-tables/') DESTROY EVERYTHING
+                href='/admin/db/drop-tables/')
+                span.glyphicon.glyphicon-trash
+                span DESTROY EVERYTHING
 div.container
     div(class="panel panel-default")
         div.panel-heading Current inventory
         ul(class='list-group')
             - for( item <- inventory)
-                li(class='list-group-item')= item
+                li.list-group-item=item

@@ -11,9 +11,13 @@ case class CarrdenInventory(db: Database) extends CarrdenInventoryStack {
   get("/") {
     contentType="text/html"
     contentType="text/html"
-    jade("main", "inventory" -> db.withDynSession {
-      produce.list.map { case (name, num, price) => s"We have $num $name and they cost $price dollars"}
-    })
+    jade(
+        "main",
+        "inventory" -> db.withDynSession {
+          produce.list.map { case (name, num, price) => s"We have $num $name and they cost $price dollars"}
+        },
+        "produceKinds" -> db.withDynSession { produce.map(_.name).list }
+    )
   }
 
   get("/produce") {

@@ -11,6 +11,22 @@ html
         link{:href => "/assets/css/bootstrap.min.css", :rel  => "stylesheet"}
         //link{:href => "/assets/css/bootstrap-theme.min.css", :rel  => "stylesheet"}
     body(data-spy= "scroll"  datatarget = ".bs.docs.sidebar")
+        nav.navbar-default.navbar-static-top.navbar-inverse
+            div.container
+                a(class='navbar-brand' href='/') Carrden Inventory
+                ul.nav.navbar-nav
+                    li
+                        a(href='/')
+                            span.glyphicon.glyphicon-shopping-cart
+                            span Main
+                    li
+                        a(href='/admin/')
+                            span.glyphicon.glyphicon-stats
+                            span Administration
+                    li
+                        a(href='/admin/settings')
+                            span.glyphicon.glyphicon-cog
+                            span Settings
         #content
             != body
 

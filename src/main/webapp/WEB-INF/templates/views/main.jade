@@ -2,6 +2,36 @@
 -@ val produceKinds: List[String]
 
 - attributes("title") = "Carrden Inventory"
+:javascript
+    jQuery(function ($) {
+        $('form[data-async]').on('submit', function (event) {
+            var $form = $(this);
+            var $target = $($form.attr('data-target'));
+            $.ajax({
+                type: $form.attr('method'),
+                url: $form.attr('action'),
+                data: $form.serialize(),
+                success: function (data, status) {
+                    $('#sale-status-text').text("$" + data.price)
+                    $('#sale-status').addClass('alert alert-success alert-block fade in')
+                },
+                error: function (result) {
+                    $('#sale-status-text').text(result);
+                    $('#sale-status').addClass('alert alert-failure alert-block fade in')
+                }
+            });
+            event.preventDefault();
+        });
+        $('#cancel-sale').on('click', function (event) {
+            $('#sale-status').removeClass('in')
+            $('#sale-form')[0].reset()
+        });
+        $('#sale-close').on('click', function (event) {
+            $('#sale-status').removeClass('in')
+            $('#sale-form')[0].reset()
+        });
+    });
+
 div.jumbotron.masthead
     div.container
         h1 Carrden Inventory
@@ -12,24 +42,6 @@ div.jumbotron.masthead
         class='btn btn-primary btn-lg')
             span(class='glyphicon glyphicon-edit')
             span Enter Sale
-
-:javascript
-    jQuery(function ($) {
-        $('form[data-async]').live('submit', function (event) {
-            var $form = $(this);
-            var $target = $($form.attr('data-target'));
-            $.ajax({
-                type: $form.attr('method'),
-                url: $form.attr('action'),
-                data: $form.serialize(),
-                success: function (data, status) {
-                    $target.html(data);
-                }
-            });
-            event.preventDefault();
-        });
-    });
-
 
 div.container
 
@@ -44,41 +56,49 @@ div.container
             div.modal-content
                 div.modal-header
                     button(
+                        id='sale-close'
                         type='button'
                         class='close'
                         data-dismiss='modal') x
                     h2 Sale
+                    div(id='sale-status')
+                        span(id='sale-status-text')
                 div.modal-body
                     form(
-                        class='form-horizontal well'
-                        data-async data-target='#salel'
-                        action='/some-endpoint'
-                        method='POST')
-                        ul
-                            - for (kind <- produceKinds)
-                                li(style='list-style-type: none;padding: 10px;')
-                                    div.input-group
-                                        div.input-group-addon
-                                            =kind
-                                        input(
-                                            type='text'
-                                            class='form-control'
-                                            placeholder='amount')
+                    id='sale-form'
+                    class='form-horizontal well'
+                    data-async data-target='#sale-form'
+                    action='/sale/'
+                    method='POST')
+                        fieldset(form='sale-form')
+                            ul
+                                - for (kind <- produceKinds)
+                                    li(style='list-style-type: none;padding: 10px;')
+                                        div.input-group
+                                            div.input-group-addon
+                                                =kind
+                                            input(
+                                                name=kind
+                                                id=kind
+                                                type='text'
+                                                class='form-control'
+                                                placeholder='amount')
 
                 div.modal-footer
                     div(
                     class='btn-group'
                     role='group')
                         button(
+                        id='cancel-sale'
                         type='button'
                         class='btn btn-danger'
                         data-dismiss='modal')
                             span(class='glyphicon glyphicon-remove')
                             span Cancel Sale
                         button(
-                        type='button'
-                        class='btn btn-success'
-                        data-dismiss='modal')
+                        type='submit'
+                        form="sale-form"
+                        class='btn btn-success')
                             span(class='glyphicon glyphicon-ok')
                             span Submit
 

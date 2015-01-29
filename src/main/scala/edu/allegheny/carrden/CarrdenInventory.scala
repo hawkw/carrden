@@ -109,7 +109,7 @@ case class CarrdenAdmin(db: Database) extends CarrdenInventoryStack {
   post("/db/create-tables/") {
     log("Got request to create tables.")
     Try(
-      db withDynSession ( produce.ddl ++ sales.ddl).create
+      db withDynSession ( produce.schema ++ sales.schema).create
     ) match {
       case Success(_) => Created("tables created successfully")
       // TODO: match possible reasons tables could not be created
@@ -120,7 +120,7 @@ case class CarrdenAdmin(db: Database) extends CarrdenInventoryStack {
   post("/db/drop-tables/") {
     log("Got request to drop tables.")
     Try(
-      db withDynSession ( produce.ddl ++ sales.ddl ).drop
+      db withDynSession ( produce.schema ++ sales.schema).drop
     ) match {
       case Success(_) => Ok("tables dropped successfully")
       // TODO: match possible reasons tables could not be dropped

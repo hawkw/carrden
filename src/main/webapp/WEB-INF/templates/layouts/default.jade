@@ -9,11 +9,7 @@ html
         meta{:charset => "utf-8"}/
         meta{:name => "viewport", :content => "width=device-width, initial-scale=1.0"}/
         link{:href => "/assets/css/bootstrap.min.css", :rel  => "stylesheet"}
-        script{:src => "/assets/js/jquery.min.js"}
-        script{:src => "/assets/js/bootstrap.min.js" }
         //link{:href => "/assets/css/bootstrap-theme.min.css", :rel  => "stylesheet"}
-        :javascript
-            window.produceFormElements={}
     body(data-spy= "scroll"  datatarget = ".bs.docs.sidebar")
         nav.navbar-default.navbar-static-top.navbar-inverse
             div.container
@@ -35,3 +31,5 @@ html
             != body
 
         script{:type => "text/javascript", :src => "http://platform.twitter.com/widgets.js"}
+        script{:src => "/assets/js/jquery.min.js"}
+        script{:src => "/assets/js/bootstrap.min.js" }

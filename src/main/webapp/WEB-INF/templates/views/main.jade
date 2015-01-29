@@ -16,7 +16,7 @@
                     $('#sale-status').addClass('alert alert-success alert-block fade in')
                 },
                 error: function (result) {
-                    $('#sale-status-text').text(result);
+                    $('#sale-status-text').text("Error" + result.code);
                     $('#sale-status').addClass('alert alert-failure alert-block fade in')
                 }
             });
@@ -35,7 +35,7 @@
 div.jumbotron.masthead
     div.container
         h1 Carrden Inventory
-        p Push some of these buttons to do stuff
+        p Click <i>Enter Sale</i> to begin a sale.
         button(
         data-toggle='modal'
         data-target='#sale'

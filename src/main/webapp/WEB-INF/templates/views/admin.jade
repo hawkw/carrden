@@ -1,4 +1,5 @@
 -@ val inventory: Map[String, Int]
+-@ val sales: Seq[(Int,String,String,Int,Double)]
 
 - attributes("title") = "Carrden Inventory Admin"
 div.jumbotron.masthead
@@ -32,3 +33,17 @@ div.container
                 li.list-group-item
                     span.badge=count
                     =item
+        div.panel-heading Test Sale Ledger
+        table.table.table-hover
+            th Sale Number
+            th Date
+            th Item
+            th Count
+            th Revenue
+            - for( sale <- sales )
+                tr
+                    td=sale._2
+                    td=sale._1
+                    td=sale._3
+                    td=sale._4
+                    td="$" + sale._5

@@ -95,18 +95,19 @@ case class CarrdenAdmin(db: Database) extends CarrdenInventoryStack {
         produce.list.map { case (name, num, price) => name -> num }.toMap
       }) match {
         case Success(fully: Map[String,Any]) => fully;
-        case Failure(JdbcSQLException) => Map[String,Any]()
+        case Failure(a: JdbcSQLException) => Map[String,Any]()
       }),
       "sales" -> (Try(db.withDynSession {
         sales.list
       }) match {
         case Success(fully: List[(Date,Int,String,Int,Double)]) => fully;
-        case Failure(JdbcSQLException) => List[(Date,Int,String,Int,Double)]()
+        case Failure(a: JdbcSQLException) => List[(Date,Int,String,Int,Double)]()
       })
     )
   }
 
-  get("/db/create-tables/") {
+  post("/db/create-tables/") {
+    log("Got request to create tables.")
     Try(
       db withDynSession ( produce.ddl ++ sales.ddl).create
     ) match {
@@ -117,6 +118,7 @@ case class CarrdenAdmin(db: Database) extends CarrdenInventoryStack {
   }
 
   post("/db/drop-tables/") {
+    log("Got request to drop tables.")
     Try(
       db withDynSession ( produce.ddl ++ sales.ddl ).drop
     ) match {
@@ -126,7 +128,9 @@ case class CarrdenAdmin(db: Database) extends CarrdenInventoryStack {
     }
   }
 
-  get("/db/load-test-data/") {
+  post("/db/load-test-data/") {
+
+    log("Got request to load test db values.")
     db withDynSession {
       produce insertAll (
         ("To-may-to", 30, 1.25),

@@ -3,33 +3,34 @@
 
 - attributes("title") = "Carrden Inventory"
 :javascript
-    jQuery(function ($) {
+    $(function() {
         $('form[data-async]').on('submit', function (event) {
+            event.preventDefault();
             var $form = $(this);
             var $target = $($form.attr('data-target'));
             $.ajax({
                 type: $form.attr('method'),
-                url: $form.attr('action'),
+                url:  $form.attr('action'),
                 data: $form.serialize(),
                 success: function (data, status) {
                     $('#sale-status-text').text("$" + data.price)
-                    $('#sale-status').addClass('alert alert-success alert-block fade in')
+                    $('#sale-status').addClass('alert-success in')
                 },
                 error: function (result) {
                     $('#sale-status-text').text("Error" + result.code);
-                    $('#sale-status').addClass('alert alert-failure alert-block fade in')
+                    $('#sale-status').addClass('alert-failure in')
                 }
             });
-            event.preventDefault();
-        });
+            $('#sale-form')[0].reset()
+        }),
         $('#cancel-sale').on('click', function (event) {
             $('#sale-status').removeClass('in')
             $('#sale-form')[0].reset()
-        });
+        }),
         $('#sale-close').on('click', function (event) {
             $('#sale-status').removeClass('in')
             $('#sale-form')[0].reset()
-        });
+        })
     });
 
 div.jumbotron.masthead
@@ -59,9 +60,11 @@ div.container
                         id='sale-close'
                         type='button'
                         class='close'
-                        data-dismiss='modal') x
+                        data-dismiss='modal') &times;
                     h2 Sale
-                    div(id='sale-status')
+                    div(id='sale-status' class='alert alert-dismissible alert-block fade')
+                        button(button type="button" class="close" data-dismiss="alert" aria-label="Close")
+                            span(aria-hidden='true') &times;
                         span(id='sale-status-text')
                 div.modal-body
                     form(
@@ -69,7 +72,7 @@ div.container
                     class='form-horizontal well'
                     data-async data-target='#sale-form'
                     action='/sale/'
-                    method='POST')
+                    method='post')
                         fieldset(form='sale-form')
                             ul
                                 - for (kind <- produceKinds)

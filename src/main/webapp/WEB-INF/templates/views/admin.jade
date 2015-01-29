@@ -2,30 +2,97 @@
 -@ val sales: Seq[(Int,String,String,Int,Double)]
 
 - attributes("title") = "Carrden Inventory Admin"
+:javascript
+    $(function() {
+        $('#create-db').on('click', function (event) {
+            $.ajax({
+                type: 'post',
+                url: '/admin/db/create-tables/',
+                data: "{}",
+                success: function (data, status) {
+                    $('#admin-status-head').text(""+ status)
+                    $('#admin-status-text').text("Created tables")
+                    $('#admin-status').addClass('alert alert-success alert-block fade in')
+                },
+                error: function (result) {
+                    $('#admin-status-head').text(""+result);
+                    $('#admin-status-text').text(result.code.toString)
+                    $('#admin-status').addClass('alert-failure in')
+                }
+            })
+            event.preventDefault()
+        }),
+        $('#load-test').on('click', function (event) {
+            $.ajax({
+                type: 'post',
+                url: '/admin/db/load-test-data/',
+                data: "{}",
+                success: function (data, status) {
+                    $('#admin-status-head').text("" + status)
+                    $('#admin-status-text').text("Successfully loaded dest data")
+                    $('#admin-status').addClass('alert-success in')
+                },
+                error: function (result) {
+                    $('#admin-status-head').text(esult.code);
+                    $('#admin-status-text').text(result.code.toString)
+                    $('#admin-status').addClass('alert-failure in')
+                }
+            })
+        }),
+        $('#destroy-everything').on('click', function (event) {
+            $.ajax({
+                type: 'post',
+                url: '/admin/db/drop-tables/',
+                data: "{}",
+                success: function (data, status) {
+                    $('#admin-status-head').text(""+status)
+                    $('#admin-status-text').text("Destroyed everything!")
+                    $('#admin-status').addClass('alert-success in')
+                },
+                error: function (result) {
+                    $('#admin-status-head').text(""+result);
+                    $('#admin-status-text').text(result.code.toString)
+                    $('#admin-status').addClass('alert-failure in')
+                }
+            })
+        }),
+        $('.close').on('click', function () {
+            $(this).parent().removeClass('alert-failure alert-success in');
+        })
+    });
+
 div.jumbotron.masthead
     div.container
         h1 Carrden Inventory Administration
         p Push some of these buttons to do stuff
         div.btn-group
-            a(
+            button(
+                id='create-db'
                 class='btn btn-default'
                 role='button'
-                href='/admin/db/create-tables/')
+                url='/admin/db/create-tables/')
                 span.glyphicon.glyphicon-file
                 span Initialize tables
-            a(
+            button(
+                id='load-test'
                 class='btn btn-default'
                 role='button'
-                href='/admin/db/load-test-data/')
+                url='/admin/db/load-test-data/')
                 span.glyphicon.glyphicon-save-file
                 span Load test data
-            a(
+            button(
+                id='destroy-everything'
                 class='btn btn-danger'
                 role='button'
-                href='/admin/db/drop-tables/')
+                url='/admin/db/drop-tables/')
                 span.glyphicon.glyphicon-trash
                 span DESTROY EVERYTHING
 div.container
+    div(id='admin-status' class='alert alert-block alert-dismissable fade')
+        button(type='button' class='close' data-dismiss='alert' aria-label='Close')
+            span(aria-hidden='true') &times;
+        h3(id='admin-status-head')
+        span(id='admin-status-text')
     div(class="panel panel-default")
         div.panel-heading Current inventory
         ul.list-group

@@ -3,6 +3,7 @@ package edu.allegheny.carrden
 import java.sql.Date
 
 import Tables._
+import org.h2.jdbc.JdbcSQLException
 import org.scalatra._
 import org.scalatra.json._
 import org.json4s.{DefaultFormats, Formats}
@@ -62,7 +63,7 @@ case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with Jac
           .list
           .reduceOption(_ max _)
           .getOrElse(0) + 1 // find the last sale number & increment
-        val processed = for {(item, count) <- sold}
+        val processed = for {(item, count) <- sold if count > 0}
           yield {
             // generate the tuples to insert into the DB
             (date,
@@ -90,12 +91,18 @@ case class CarrdenAdmin(db: Database) extends CarrdenInventoryStack {
     contentType="text/html"
     jade(
       "admin",
-      "inventory" -> db.withDynSession {
+      "inventory" -> (Try(db.withDynSession {
         produce.list.map { case (name, num, price) => name -> num }.toMap
-      },
-      "sales" -> db.withDynSession {
+      }) match {
+        case Success(fully: Map[String,Any]) => fully;
+        case Failure(JdbcSQLException) => Map[String,Any]()
+      }),
+      "sales" -> (Try(db.withDynSession {
         sales.list
-      }
+      }) match {
+        case Success(fully: List[(Date,Int,String,Int,Double)]) => fully;
+        case Failure(JdbcSQLException) => List[(Date,Int,String,Int,Double)]()
+      })
     )
   }
 
@@ -125,7 +132,12 @@ case class CarrdenAdmin(db: Database) extends CarrdenInventoryStack {
         ("To-may-to", 30, 1.25),
         ("To-mah-to", 30, 1.25),
         ("Po-tay-to", 42, 3.50),
-        ("Po-tah-to", 42, 3.50)
+        ("Po-tah-to", 42, 3.50),
+        ("A vegetable with a space", 10000, 0.00),
+        // PATHOLOGICAL VEGETABLE PLS IGNORE
+          //("324q54w56e7890*^&&*^%^&%%^$$%#$##$@#$@@#$$@#$#@$%#^%&^*&^*", -99999, -203.9),
+        // INCREASINGLY PATHOLOGICAL VEGETABLE PLS IGNORE
+        ("zalgoberry", Integer.MIN_VALUE, Double.NaN)
       )
     }
   }

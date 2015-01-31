@@ -56,8 +56,8 @@
                 }
             })
         }),
-        $('.close').on('click', function () {
-            $(this).parent().removeClass('alert-failure alert-success in');
+        $('.alert-close').on('click', function () {
+            $('#admin-status').removeClass('alert-failure alert-success in');
         })
     });
 
@@ -89,8 +89,7 @@ div.jumbotron.masthead
                 span DESTROY EVERYTHING
 div.container
     div(id='admin-status' class='alert alert-block alert-dismissable fade')
-        button(type='button' class='close' data-dismiss='alert' aria-label='Close')
-            span(aria-hidden='true') &times;
+        button(type='button' class='close alert-close') &times;
         strong(id='admin-status-head')
         span(id='admin-status-text')
     div(class="panel panel-default")

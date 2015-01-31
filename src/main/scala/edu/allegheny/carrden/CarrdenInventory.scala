@@ -11,6 +11,7 @@ import scalate.ScalateSupport
 import scala.slick.driver.H2Driver.simple._
 import scala.slick.jdbc.JdbcBackend.Database.dynamicSession
 import scala.util.{Try, Success, Failure}
+import scala.slick.jdbc.{GetResult, StaticQuery => Q}
 
 case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with JacksonJsonSupport {
 
@@ -77,6 +78,20 @@ case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with Jac
               )
           }
         sales ++= processed // insert rows into the DB
+        for { sale <- processed } {
+          val (item, soldCount:Int) = (sale._3, sale._4)
+          val currentCount:Int = produce // get the current count of that item
+            .filter(_.name === item)
+            .map(_.count)
+            .list
+            .head
+          val update = for {
+            inventory <- produce if inventory.name === item
+          } yield inventory.count
+          // subtract the amount sold from the previous amount
+          update.update(currentCount - soldCount)
+        }
+
         Ok(SaleResult(processed.map(_._5).sum)) // reply to the client w/ the cost (wrapped in a 200 OK)
       }
     } catch {
@@ -109,7 +124,25 @@ case class CarrdenAdmin(db: Database) extends CarrdenInventoryStack {
   post("/db/create-tables/") {
     log("Got request to create tables.")
     Try(
-      db withDynSession ( produce.schema ++ sales.schema).create
+      db withDynSession {
+        ( produce.schema ++ sales.schema).create
+
+
+        Q.updateNA(
+          "ALTER TABLE SALES" +
+            "ADD CONSTRAINT CHECK(count > 0);"
+        ).execute
+        /*
+        // this is commented out because I can't get the trigger to work.
+        // TODO: I'd like the trigger to work
+      Q.updateNA(
+        "CREATE TRIGGER inv_update_trigger IF NOT EXISTS " +
+          "AFTER INSERT ON sales FOR EACH ROW " +
+          "UPDATE TABLE inventory SET count = count - new.count " +
+          "WHERE name LIKE new.item;"
+      ).execute
+      */
+      }
     ) match {
       case Success(_) => Created("tables created successfully")
       // TODO: match possible reasons tables could not be created

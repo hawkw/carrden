@@ -3,6 +3,7 @@ package edu.allegheny.carrden
 import java.sql.Date
 
 import scala.slick.driver.H2Driver.simple._
+
 /**
  * Created by hawk on 1/27/15.
  */

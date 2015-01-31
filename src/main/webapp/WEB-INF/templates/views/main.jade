@@ -13,8 +13,13 @@
                 url:  $form.attr('action'),
                 data: $form.serialize(),
                 success: function (data, status) {
-                    $('#sale-status-text').text("$" + data.price)
-                    $('#sale-status').addClass('alert-success in')
+                    if (data.hasOwnProperty('price')) {
+                        $('#sale-status-text').text("$" + data.price);
+                        $('#sale-status').addClass('alert-success in');
+                    } else {
+                        $('#sale-status-text').text("Not enough " + data.what);
+                        $('#sale-status').addClass('alert-warning in');
+                    }
                 },
                 error: function (result) {
                     $('#sale-status-text').text("Error" + result.code);
@@ -22,15 +27,14 @@
                 }
             });
             $('#sale-form')[0].reset()
-        }),
-        $('#cancel-sale').on('click', function (event) {
+        });
+        $('.sale-close').click(function () {
             $('#sale-status').removeClass('in')
             $('#sale-form')[0].reset()
-        }),
-        $('#sale-close').on('click', function (event) {
-            $('#sale-status').removeClass('in')
-            $('#sale-form')[0].reset()
-        })
+        });
+        $('.close').click(function () {
+            $(this).parent.removeClass('in')
+        });
     });
 
 div.jumbotron.masthead
@@ -57,14 +61,12 @@ div.container
             div.modal-content
                 div.modal-header
                     button(
-                        id='sale-close'
                         type='button'
-                        class='close'
-                        data-dismiss='modal') &times;
+                        class='close sale-close') &times;
                     h2 Sale
-                    div(id='sale-status' class='alert alert-dismissible alert-block fade')
-                        button(button type="button" class="close" data-dismiss="alert" aria-label="Close")
-                            span(aria-hidden='true') &times;
+                    div(id='sale-status' class='alert alert-block fade' )
+                        button.close
+                            span &times;
                         span(id='sale-status-text')
                 div.modal-body
                     form(

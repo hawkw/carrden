@@ -20,6 +20,9 @@ case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with Jac
   case class Sale(sold: Map[String, String])
 
   case class SaleResult(price: Double)
+  case class OutOfStock(what: String)
+
+  case class OutOfStockException(what: String) extends Exception
 
   get("/") {
     contentType = "text/html"
@@ -50,54 +53,59 @@ case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with Jac
   post("/sale/") {
     contentType = formats("json")
     log(s"Recieved $params")
-    try {
       val date = new Date(System.currentTimeMillis())
       val sold = params.mapValues{case "" => 0; case s: String => Integer.parseInt(s)}
       log(s"Extracted: $sold")
       db withDynTransaction {
-        // start a new transaction
-        // (if 2+ point-of-sale clients are connected, we don't want
-        // them to try to add sales with the same number)
-        val saleNum = sales // the sale number is equal to...
-          .filter(_.date === date) // get all sale records for today
-          .map(_.saleNum) // extract the sale numbers
-          .list
-          .reduceOption(_ max _)
-          .getOrElse(0) + 1 // find the last sale number & increment
-        val processed = for {(item, count) <- sold if count > 0}
-          yield {
-            // generate the tuples to insert into the DB
-            (date,
-              saleNum,
-              item,
-              count,
-              produce // get the current price for that produce item
-                .filter(_.name === item) // select the row for this item
-                .map(_.price) // extract the price
-                .first * count // multiply by the amount sold
-              )
-          }
-        sales ++= processed // insert rows into the DB
-        for { sale <- processed } {
-          val (item, soldCount:Int) = (sale._3, sale._4)
-          val currentCount:Int = produce // get the current count of that item
-            .filter(_.name === item)
-            .map(_.count)
+        Try {
+          // start a new transaction
+          // (if 2+ point-of-sale clients are connected, we don't want
+          // them to try to add sales with the same number)
+          val saleNum = sales // the sale number is equal to...
+            .filter(_.date === date) // get all sale records for today
+            .map(_.saleNum) // extract the sale numbers
             .list
-            .head
-          val update = for {
-            inventory <- produce if inventory.name === item
-          } yield inventory.count
-          // subtract the amount sold from the previous amount
-          update.update(currentCount - soldCount)
+            .reduceOption(_ max _)
+            .getOrElse(0) + 1 // find the last sale number & increment
+          val processed = for {(item, count) <- sold if count > 0}
+            yield {
+              // generate the tuples to insert into the DB
+              (date,
+                saleNum,
+                item,
+                count,
+                produce // get the current price for that produce item
+                  .filter(_.name === item) // select the row for this item
+                  .map(_.price) // extract the price
+                  .first * count // multiply by the amount sold
+                )
+            }
+          sales ++= processed // insert rows into the DB
+          for {sale <- processed} {
+            val (item, soldCount: Int) = (sale._3, sale._4)
+            val currentCount: Int = produce // get the current count of that item
+              .filter(_.name === item)
+              .map(_.count)
+              .list
+              .head
+            val amount = currentCount - soldCount
+            if (amount < 0){
+              throw OutOfStockException(item)
+            } else {
+              val update = for {
+                inventory <- produce if inventory.name === item
+              } yield inventory.count
+              // subtract the amount sold from the previous amount
+              update.update(amount)
+            }
+          }
+          processed.map(_._5).sum
+        } match {
+          case Success(price) => Ok(SaleResult(price)) // reply to the client w/ the cost (wrapped in a 200 OK)
+          case Failure(OutOfStockException(what)) => Ok(OutOfStock(what))
+          case Failure(why) => InternalServerError(why.toString)
         }
-
-        Ok(SaleResult(processed.map(_._5).sum)) // reply to the client w/ the cost (wrapped in a 200 OK)
       }
-    } catch {
-      //TODO: better error handling pls
-      case e: Exception => log("failed: ", e); InternalServerError(e.toString)
-    }
   }
 }
 case class CarrdenAdmin(db: Database) extends CarrdenInventoryStack {

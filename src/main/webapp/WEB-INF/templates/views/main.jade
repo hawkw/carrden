@@ -16,8 +16,14 @@
                     if (data.hasOwnProperty('price')) {
                         $('#sale-status-text').text("$" + data.price);
                         $('#sale-status').addClass('alert-success in');
+                    } else if (data.hasOwnProperty('what')){
+                        $('#sale-status-text').html(
+                                "<strong>Out of stock:</strong> not enough " +
+                                data.what.toString().toLowerCase() + "s");
+                        $('#sale-status').addClass('alert-warning in');
                     } else {
-                        $('#sale-status-text').innerHTML("<strong>Out of stock:</strong> not enough" + data.what + "s");
+                        console.log("[DEBUG] got weird thing: " + data)
+                        $('#sale-status-text').text("[DEBUG] got weird thing: " + data);
                         $('#sale-status').addClass('alert-warning in');
                     }
                 },
@@ -29,7 +35,7 @@
             $('#sale-form')[0].reset()
         });
         $('.sale-close').click(function () {
-            $('#sale-status').removeClass('in')
+            $('#sale-status').removeClass('in alert-warning alert-success alert-failure')
             $('#sale-form')[0].reset()
         });
         $('.close').click(function () {

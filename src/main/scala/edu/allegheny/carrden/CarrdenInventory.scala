@@ -89,7 +89,7 @@ case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with Jac
               .list
               .head
             val amount = currentCount - soldCount
-            if (amount < 0){
+            if (amount <= 0){
               throw OutOfStockException(item)
             } else {
               val update = for {

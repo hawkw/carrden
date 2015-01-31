@@ -17,7 +17,7 @@
                         $('#sale-status-text').text("$" + data.price);
                         $('#sale-status').addClass('alert-success in');
                     } else {
-                        $('#sale-status-text').text("Not enough " + data.what);
+                        $('#sale-status-text').innerHTML("<strong>Out of stock:</strong> not enough" + data.what + "s");
                         $('#sale-status').addClass('alert-warning in');
                     }
                 },
@@ -62,11 +62,11 @@ div.container
                 div.modal-header
                     button(
                         type='button'
-                        class='close sale-close') &times;
+                        class='close sale-close'
+                        data-dismiss='modal') &times;
                     h2 Sale
                     div(id='sale-status' class='alert alert-block fade' )
-                        button.close
-                            span &times;
+                        button(type='button' class='close sale-close') &times;
                         span(id='sale-status-text')
                 div.modal-body
                     form(

@@ -176,15 +176,18 @@ case class CarrdenAdmin(db: Database) extends CarrdenInventoryStack {
     log("Got request to load test db values.")
     db withDynSession {
       produce insertAll (
-        ("To-may-to", 30, 1.25),
-        ("To-mah-to", 30, 1.25),
-        ("Po-tay-to", 42, 3.50),
-        ("Po-tah-to", 42, 3.50),
-        ("A vegetable with a space", 10000, 0.00),
+        ("Roma Tomato", 15, 1.25),
+        ("Beefsteak Tomato", 10, 1.50),
+        ("Watermelon", 5, 3.50),
+        ("Fingerling Potato", 25, 2.15),
+        ("Cabbage", 5, 1.75),
+        ("Lettuce", 7, 2.55),
+        ("Kale", 8, 3.15)//,
+        //("A vegetable with a space", 10000, 0.00),
         // PATHOLOGICAL VEGETABLE PLS IGNORE
           //("324q54w56e7890*^&&*^%^&%%^$$%#$##$@#$@@#$$@#$#@$%#^%&^*&^*", -99999, -203.9),
         // INCREASINGLY PATHOLOGICAL VEGETABLE PLS IGNORE
-        ("zalgoberry", Integer.MIN_VALUE, Double.NaN)
+        //("zalgoberry", Integer.MIN_VALUE, Double.NaN)
       )
     }
   }

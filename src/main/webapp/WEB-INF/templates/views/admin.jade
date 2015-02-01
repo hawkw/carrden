@@ -90,29 +90,35 @@ div.jumbotron.masthead
                 url='/admin/db/drop-tables/')
                 span.glyphicon.glyphicon-trash
                 span DESTROY EVERYTHING
+
 div.container
     div(id='admin-status' class='alert alert-block alert-dismissable fade')
         button(type='button' class='close alert-close') &times;
         strong(id='admin-status-head')
         span(id='admin-status-text')
-    div(class="panel panel-default")
-        div.panel-heading Current inventory
-        ul.list-group
-            - for( (item, count) <- inventory)
-                li.list-group-item
-                    span.badge=count
-                    =item
-        div.panel-heading Test Sale Ledger
-        table.table.table-hover
-            th Sale Number
-            th Date
-            th Item
-            th Count
-            th Revenue
-            - for( sale <- sales )
-                tr
-                    td=sale._2
-                    td=sale._1
-                    td=sale._3
-                    td=sale._4
-                    td="$" + sale._5
+
+    div.col-md-6
+        div.panel.panel-default
+            div.panel-heading Sale Ledger
+            table.table.table-hover
+                th #
+                th Date
+                th Item
+                th Count
+                th Revenue
+                - for( sale <- sales )
+                    tr
+                        td=sale._2
+                        td=sale._1
+                        td=sale._3
+                        td=sale._4
+                        td="$" + sale._5
+
+    div.col-md-3
+        div.panel.panel-default
+            div.panel-heading Current inventory
+            ul.list-group
+                - for( (item, count) <- inventory)
+                    li.list-group-item
+                        span.badge=count
+                        =item

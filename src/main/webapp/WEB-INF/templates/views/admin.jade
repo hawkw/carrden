@@ -99,7 +99,8 @@ div.container
 
     div.col-md-6
         div.panel.panel-default
-            div.panel-heading Sale Ledger
+            div.panel-heading
+                strong Sale Ledger
             table.table.table-hover
                 th #
                 th Date
@@ -116,7 +117,8 @@ div.container
 
     div.col-md-3
         div.panel.panel-default
-            div.panel-heading Current inventory
+            div.panel-heading
+                strong Current inventory
             ul.list-group
                 - for( (item, count) <- inventory)
                     li.list-group-item

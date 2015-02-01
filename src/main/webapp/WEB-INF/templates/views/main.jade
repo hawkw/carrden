@@ -112,13 +112,14 @@ div.container
                         class='btn btn-success')
                             span(class='glyphicon glyphicon-ok')
                             span Submit
-
-    div(class="panel panel-default")
-        div.panel-heading Current inventory
-        ul.list-group
-            - for( (item, count) <- inventory)
-                li.list-group-item
-                    span.badge=count
-                    =item
+    div.col-md-3
+        div(class="panel panel-default")
+            div.panel-heading
+                strong Current inventory
+            ul.list-group
+                - for( (item, count) <- inventory)
+                    li.list-group-item
+                        span.badge=count
+                        =item
 
 

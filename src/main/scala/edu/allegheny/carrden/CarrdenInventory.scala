@@ -28,15 +28,17 @@ case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with Jac
     contentType = "text/html"
     jade(
       "main",
-      "inventory" -> db.withDynSession {
-        produce.list.map {
-          case (name, num, price) =>
-            s"We have $num $name and they cost $price dollars"
-        }
-      },
-      "produceKinds" -> db.withDynSession {
-        produce.map(_.name).list
-      }
+      "inventory" -> (Try(db.withDynSession {
+        produce.list.map { case (name, num, price) => name -> num }.toMap
+      }) match {
+        case Success(fully: Map[String,Any]) => fully;
+        case Failure(a: JdbcSQLException) => Map[String,Any]()
+      }),      "inventory" -> (Try(db.withDynSession {
+        produce.list.map { case (name, num, price) => name -> num }.toMap
+      }) match {
+        case Success(fully: Map[String,Any]) => fully;
+        case Failure(a: JdbcSQLException) => Map[String,Any]()
+      })
     )
   }
 

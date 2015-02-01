@@ -1,5 +1,4 @@
--@ val inventory: List[String]
--@ val produceKinds: List[String]
+-@ val inventory: Map[String, Int]
 
 - attributes("title") = "Carrden Inventory"
 :javascript
@@ -37,6 +36,7 @@
         $('.sale-close').click(function () {
             $('#sale-status').removeClass('in alert-warning alert-success alert-failure')
             $('#sale-form')[0].reset()
+            window.location.reload(true); // TODO: get table contents dynamically instead
         });
         $('.close').click(function () {
             $(this).parent.removeClass('in')
@@ -83,7 +83,7 @@ div.container
                     method='post')
                         fieldset(form='sale-form')
                             ul
-                                - for (kind <- produceKinds)
+                                - for ( (kind, _) <- inventory)
                                     li(style='list-style-type: none;padding: 10px;')
                                         div.input-group
                                             div.input-group-addon
@@ -113,5 +113,12 @@ div.container
                             span(class='glyphicon glyphicon-ok')
                             span Submit
 
+    div(class="panel panel-default")
+        div.panel-heading Current inventory
+        ul.list-group
+            - for( (item, count) <- inventory)
+                li.list-group-item
+                    span.badge=count
+                    =item
 
 

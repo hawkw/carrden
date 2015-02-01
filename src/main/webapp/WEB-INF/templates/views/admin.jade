@@ -13,6 +13,7 @@
                     $('#admin-status-head').text(""+ status)
                     $('#admin-status-text').text("Created tables")
                     $('#admin-status').addClass('alert alert-success alert-block fade in')
+                    window.location.reload(true); // TODO: get table contents dynamically instead
                 },
                 error: function (result) {
                     $('#admin-status-head').text(""+result);
@@ -31,6 +32,7 @@
                     $('#admin-status-head').text("" + status)
                     $('#admin-status-text').text("Successfully loaded dest data")
                     $('#admin-status').addClass('alert-success in')
+                    window.location.reload(true);
                 },
                 error: function (result) {
                     $('#admin-status-head').text(esult.code);
@@ -48,6 +50,7 @@
                     $('#admin-status-head').text(""+status)
                     $('#admin-status-text').text("Destroyed everything!")
                     $('#admin-status').addClass('alert-success in')
+                    window.location.reload(true);
                 },
                 error: function (result) {
                     $('#admin-status-head').text(""+result);

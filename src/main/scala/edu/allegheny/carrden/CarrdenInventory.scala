@@ -99,19 +99,19 @@ case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with Jac
               } yield inventory.count
               // subtract the amount sold from the previous amount
               update.update(amount)
-              log(s"Sold $soldCount ${item}s.")
+              //log(s"Sold $soldCount ${item}s.")
             }
           }
           processed.map(_._5).sum
         } match {
           case Success(price) =>
-            log(s"Replied with sale for \$$price.")
+            //log(s"Replied with sale for \$$price.")
             Ok(SaleResult(price)) // reply to the client w/ the cost (wrapped in a 200 OK)
           case Failure(OutOfStockException(what)) =>
-            log(s"Could not place sale, $what was out of stock.")
+            //log(s"Could not place sale, $what was out of stock.")
             Ok(OutOfStock(what))
           case Failure(why) =>
-            log(s"Could not place sale, an unexpected error occured", why)
+            //log(s"Could not place sale, an unexpected error occured", why)
             InternalServerError(why.toString)
         }
       }
@@ -144,11 +144,13 @@ case class CarrdenAdmin(db: Database) extends CarrdenInventoryStack {
       db withDynSession {
         ( produce.schema ++ sales.schema).create
 
-
+        /*
+        //todo: fix
         Q.updateNA(
-          "ALTER TABLE SALES" +
+          "ALTER TABLE SALES " +
             "ADD CONSTRAINT CHECK(count > 0);"
         ).execute
+        */
         /*
         // this is commented out because I can't get the trigger to work.
         // TODO: I'd like the trigger to work

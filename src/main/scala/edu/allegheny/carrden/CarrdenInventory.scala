@@ -99,13 +99,20 @@ case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with Jac
               } yield inventory.count
               // subtract the amount sold from the previous amount
               update.update(amount)
+              log(s"Sold $soldCount ${item}s.")
             }
           }
           processed.map(_._5).sum
         } match {
-          case Success(price) => Ok(SaleResult(price)) // reply to the client w/ the cost (wrapped in a 200 OK)
-          case Failure(OutOfStockException(what)) => Ok(OutOfStock(what))
-          case Failure(why) => InternalServerError(why.toString)
+          case Success(price) =>
+            log(s"Replied with sale for \$$price.")
+            Ok(SaleResult(price)) // reply to the client w/ the cost (wrapped in a 200 OK)
+          case Failure(OutOfStockException(what)) =>
+            log(s"Could not place sale, $what was out of stock.")
+            Ok(OutOfStock(what))
+          case Failure(why) =>
+            log(s"Could not place sale, an unexpected error occured", why)
+            InternalServerError(why.toString)
         }
       }
   }
@@ -154,9 +161,13 @@ case class CarrdenAdmin(db: Database) extends CarrdenInventoryStack {
       */
       }
     ) match {
-      case Success(_) => Created("tables created successfully")
+      case Success(_) =>
+        log("Created tables successfully")
+        Created("tables created successfully")
       // TODO: match possible reasons tables could not be created
-      case Failure(why) => InternalServerError(why.toString)
+      case Failure(why) =>
+        log("Could not create tables", why)
+        InternalServerError(why.toString)
     }
   }
 
@@ -165,9 +176,13 @@ case class CarrdenAdmin(db: Database) extends CarrdenInventoryStack {
     Try(
       db withDynSession ( produce.schema ++ sales.schema).drop
     ) match {
-      case Success(_) => Ok("tables dropped successfully")
+      case Success(_) =>
+        log("Dropped tables")
+        Ok("tables dropped successfully")
       // TODO: match possible reasons tables could not be dropped
-      case Failure(why) => InternalServerError(why.toString)
+      case Failure(why) =>
+        log("Could not drop tables", why)
+        InternalServerError(why.toString)
     }
   }
 

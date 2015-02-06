@@ -56,10 +56,17 @@
             });
         }),
         $(".live-price-source").on('keyup', function () {
-            var name = $(this).attr('name')
-            var totalcost = g_inventory[name]['price'] * $(this).val();
+            var name = $(this).attr('name');
+            var amountPurchased = $(this).val();
+            var result;
+            if (g_inventory[name]['amount'] < amountPurchased) {
+                result = "Only " + g_inventory[name]['amount'] + " in stock!"
+            } else {
+                result = "$" + (g_inventory[name]['price'] * amountPurchased).toFixed(2);
+            }
+
             //console.log('cost was  '+ totalcost)
-            $('#' + name + '-price').html("$" + totalcost.toFixed(2));
+            $('#' + name + '-price').html(result);
         }),
         $('.sale-close').click(function () {
             $('#sale-status').removeClass('in alert-warning alert-success alert-failure');

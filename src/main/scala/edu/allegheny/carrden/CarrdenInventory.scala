@@ -18,11 +18,10 @@ case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with Jac
   protected implicit val jsonFormats: Formats = DefaultFormats
 
   case class Sale(sold: Map[String, String])
-
   case class SaleResult(price: Double)
   case class OutOfStock(what: String)
-
   case class OutOfStockException(what: String) extends Exception
+  case class InventoryItem(name: String, amount: Int, price: Double)
 
   get("/") {
     contentType = "text/html"
@@ -42,13 +41,16 @@ case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with Jac
     )
   }
 
-  get("/produce") {
+  get("/inventory") {
     db withDynSession {
-      contentType = "text/html"
-      produce.list.map {
-        case (name, num, price) =>
-          s"We have $num $name and they cost $price dollars"
-      } mkString "<br />"
+      contentType = formats("json")
+      Try(produce.list.map {
+        case (name, num, price) => InventoryItem(name, num, price)
+      }) match {
+        case Success(fully) => Ok(fully)
+        case Failure(why)   => InternalServerError(why.toString)
+      }
+
     }
   }
 

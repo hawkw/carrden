@@ -39,7 +39,15 @@
                 url: '/inventory',
                 data: '{}',
                 success: function (data, status) {
-                        console.log(data);
+                    g_inventory = {}
+                    for (var i in data) {
+                        console.log(data[i])
+                        g_inventory[data[i]['name']] = {
+                            amount: data[i]['amount'],
+                            price: data[i]['price']
+                        };
+                    }
+                    console.log(g_inventory)
                     },
                 error: function (result) {
                     $('#sale-status-text').text("Error" + result.code);
@@ -47,9 +55,15 @@
                 }
             });
         }),
+        $(".live-price").on('keyup', function () {
+            var name = $(this).attr('name')
+            var totalcost = g_inventory[name]['price'] * $(this).val();
+            //console.log('cost was  '+ totalcost)
+            $('#' + name + '-price').html("$" + totalcost);
+        }),
         $('.sale-close').click(function () {
-            $('#sale-status').removeClass('in alert-warning alert-success alert-failure')
-            $('#sale-form')[0].reset()
+            $('#sale-status').removeClass('in alert-warning alert-success alert-failure');
+            $('#sale-form')[0].reset();
             window.location.reload(true); // TODO: get table contents dynamically instead
         }),
         $('.close').click(function () {
@@ -106,7 +120,7 @@ div.container
                                                 name=kind
                                                 id=kind
                                                 type='text'
-                                                class='form-control'
+                                                class='form-control live-price'
                                                 placeholder='amount')
                                             span(class='input-group-addon' id='#{kind}-price') $0.00
 

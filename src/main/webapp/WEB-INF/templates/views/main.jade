@@ -15,7 +15,7 @@
                     if (data.hasOwnProperty('price')) {
                         $('#sale-status-text').text("$" + data.price);
                         $('#sale-status').addClass('alert-success in');
-                    } else if (data.hasOwnProperty('what')){
+                    } else if (data.hasOwnProperty('what')) {
                         $('#sale-status-text').html(
                                 "<strong>Out of stock:</strong> not enough " +
                                 data.what.toString().toLowerCase() + "s");
@@ -32,12 +32,26 @@
                 }
             });
             $('#sale-form')[0].reset()
-        });
+        }),
+        $('#sale').on('show.bs.modal', function (e) {
+            $.ajax({
+                type: 'get',
+                url: '/inventory',
+                data: '{}',
+                success: function (data, status) {
+                        console.log(data);
+                    },
+                error: function (result) {
+                    $('#sale-status-text').text("Error" + result.code);
+                    $('#sale-status').addClass('alert-failure in')
+                }
+            });
+        }),
         $('.sale-close').click(function () {
             $('#sale-status').removeClass('in alert-warning alert-success alert-failure')
             $('#sale-form')[0].reset()
             window.location.reload(true); // TODO: get table contents dynamically instead
-        });
+        }),
         $('.close').click(function () {
             $(this).parent.removeClass('in')
         });
@@ -86,7 +100,7 @@ div.container
                                 - for ( (kind, _) <- inventory)
                                     li(style='list-style-type: none;padding: 10px;')
                                         div.input-group
-                                            div.input-group-addon
+                                            span.input-group-addon
                                                 =kind
                                             input(
                                                 name=kind
@@ -94,6 +108,8 @@ div.container
                                                 type='text'
                                                 class='form-control'
                                                 placeholder='amount')
+                                            span(class='input-group-addon' id='#{kind}-price') $0.00
+
 
                 div.modal-footer
                     div(

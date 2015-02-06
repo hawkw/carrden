@@ -55,7 +55,7 @@
                 }
             });
         }),
-        $(".live-price").on('keyup', function () {
+        $(".live-price-source").on('keyup', function () {
             var name = $(this).attr('name')
             var totalcost = g_inventory[name]['price'] * $(this).val();
             //console.log('cost was  '+ totalcost)
@@ -64,6 +64,7 @@
         $('.sale-close').click(function () {
             $('#sale-status').removeClass('in alert-warning alert-success alert-failure');
             $('#sale-form')[0].reset();
+            $('.live-price').html('$0.00');
             window.location.reload(true); // TODO: get table contents dynamically instead
         }),
         $('.close').click(function () {
@@ -121,9 +122,9 @@ div.container
                                                 name=kind_sanitized
                                                 id=kind
                                                 type='text'
-                                                class='form-control live-price'
+                                                class='form-control live-price-source'
                                                 placeholder='amount')
-                                            span(class='input-group-addon' id='#{kind_sanitized}-price') $0.00
+                                            span(class='input-group-addon live-price' id='#{kind_sanitized}-price') $0.00
 
 
                 div.modal-footer
@@ -133,7 +134,7 @@ div.container
                         button(
                         id='cancel-sale'
                         type='button'
-                        class='btn btn-danger'
+                        class='btn btn-danger sale-close'
                         data-dismiss='modal')
                             span(class='glyphicon glyphicon-remove')
                             span Cancel Sale

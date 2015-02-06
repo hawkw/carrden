@@ -13,7 +13,7 @@
                 data: $form.serialize(),
                 success: function (data, status) {
                     if (data.hasOwnProperty('price')) {
-                        $('#sale-status-text').text("$" + data.price);
+                        $('#sale-status-text').text("$" + data.price.toFixed(2));
                         $('#sale-status').addClass('alert-success in');
                     } else if (data.hasOwnProperty('what')) {
                         $('#sale-status-text').html(
@@ -42,7 +42,7 @@
                     g_inventory = {}
                     for (var i in data) {
                         console.log(data[i])
-                        g_inventory[data[i]['name']] = {
+                        g_inventory[data[i]['name'].replace(' ', '_')] = {
                             amount: data[i]['amount'],
                             price: data[i]['price']
                         };
@@ -59,7 +59,7 @@
             var name = $(this).attr('name')
             var totalcost = g_inventory[name]['price'] * $(this).val();
             //console.log('cost was  '+ totalcost)
-            $('#' + name + '-price').html("$" + totalcost);
+            $('#' + name + '-price').html("$" + totalcost.toFixed(2));
         }),
         $('.sale-close').click(function () {
             $('#sale-status').removeClass('in alert-warning alert-success alert-failure');
@@ -112,17 +112,18 @@ div.container
                         fieldset(form='sale-form')
                             ul
                                 - for ( (kind, _) <- inventory)
+                                    - var kind_sanitized = kind.replace(' ', '_')
                                     li(style='list-style-type: none;padding: 10px;')
                                         div.input-group
                                             span.input-group-addon
                                                 =kind
                                             input(
-                                                name=kind
+                                                name=kind_sanitized
                                                 id=kind
                                                 type='text'
                                                 class='form-control live-price'
                                                 placeholder='amount')
-                                            span(class='input-group-addon' id='#{kind}-price') $0.00
+                                            span(class='input-group-addon' id='#{kind_sanitized}-price') $0.00
 
 
                 div.modal-footer

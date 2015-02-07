@@ -15,6 +15,7 @@ function updateInventory() {
                 };
             }
             console.log("[Info] Got current inventory: " + g_inventory)
+            $("#current-inventory").load(location.href + " #current-inventory");
         },
         error: function (result) {
             console.log("[Error] Something went wrong getting inventory: " + result)

@@ -13,7 +13,8 @@
                     $('#admin-status-head').text(""+ status)
                     $('#admin-status-text').text("Created tables")
                     $('#admin-status').addClass('alert alert-success alert-block fade in')
-                    window.location.reload(true); // TODO: get table contents dynamically instead
+                    $("#current-inventory").load(location.href + " #current-inventory");
+                    $("#ledger").load(location.href + " #ledger");
                 },
                 error: function (result) {
                     $('#admin-status-head').text(""+result);
@@ -32,7 +33,8 @@
                     $('#admin-status-head').text("" + status)
                     $('#admin-status-text').text("Successfully loaded dest data")
                     $('#admin-status').addClass('alert-success in')
-                    window.location.reload(true);
+                    $("#current-inventory").load(location.href + " #current-inventory");
+                    $("#ledger").load(location.href + " #ledger");
                 },
                 error: function (result) {
                     $('#admin-status-head').text(esult.code);
@@ -50,7 +52,8 @@
                     $('#admin-status-head').text(""+status)
                     $('#admin-status-text').text("Destroyed everything!")
                     $('#admin-status').addClass('alert-success in')
-                    window.location.reload(true);
+                    $("#current-inventory").load(location.href + " #current-inventory");
+                    $("#ledger").load(location.href + " #ledger");
                 },
                 error: function (result) {
                     $('#admin-status-head').text(""+result);
@@ -98,7 +101,7 @@ div.container
         span(id='admin-status-text')
 
     div.col-md-6
-        div.panel.panel-default
+        div(class='panel panel-default' id='ledger')
             div.panel-heading
                 strong Sale Ledger
             table.table.table-hover
@@ -116,7 +119,7 @@ div.container
                         td="$" + sale._5
 
     div.col-md-3
-        div.panel.panel-default
+        div(class='panel panel-default' id='current-inventory')
             div.panel-heading
                 strong Current inventory
             ul.list-group

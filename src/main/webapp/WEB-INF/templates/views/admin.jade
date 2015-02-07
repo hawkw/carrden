@@ -93,6 +93,13 @@ div.jumbotron.masthead
                 url='/admin/db/drop-tables/')
                 span.glyphicon.glyphicon-trash
                 span Drop tables
+        div.btn-group
+            button(
+            data-toggle='modal'
+            data-target='#add-item'
+            class='btn btn-primary')
+                span(class='glyphicon glyphicon-add')
+                span Add Produce
 
 div.container
     div(id='admin-status' class='alert alert-block alert-dismissable fade')
@@ -127,3 +134,54 @@ div.container
                     li.list-group-item
                         span.badge=count
                         =item
+    div(
+    class='modal'
+    id='add-item'
+    role='dialog'
+    tabindex='-1'
+    aria-labelledby='Add Produce'
+    aria-hidden='true')
+        div.modal-dialog
+            div.modal-content
+                div.modal-header
+                    button(
+                    type='button'
+                    class='close'
+                    data-dismiss='modal') &times;
+                    h2 Sale
+                    div(id='sale-status' class='alert alert-block fade' )
+                        button(type='button' class='close sale-close') &times;
+                        span(id='sale-status-text')
+                div.modal-body
+                    form(
+                    id='add-produce-form'
+                    class='form-horizontal well'
+                    data-async data-target='#add-item'
+                    action='/sale/'
+                    method='post')
+                        fieldset(form='sale-form')
+                            ul
+                                li(style='list-style-type: none;padding: 10px;')
+                                    div.input-group
+                                        span.input-group-addon Name
+                                        input(type='text' class='form-control')
+                                li(style='list-style-type: none;padding: 10px;')
+                                    div.input-group
+                                        span.input-group-addon Price
+                                        input(type='text' class='form-control')
+                    div(
+                    class='btn-group'
+                    role='group')
+                        button(
+                        id='cancel-add'
+                        type='button'
+                        class='btn btn-danger'
+                        data-dismiss='modal')
+                            span(class='glyphicon glyphicon-remove')
+                            span Cancel
+                        button(
+                        type='submit'
+                        form="add-item"
+                        class='btn btn-success')
+                            span(class='glyphicon glyphicon-ok')
+                            span Submit

@@ -13,6 +13,7 @@ function updateInventory() {
                     amount: data[i]['amount'],
                     price: data[i]['price']
                 };
+                //todo: sane way of attaching stuff to this callback
             }
             console.log("[Info] Got current inventory: " + g_inventory)
             $("#current-inventory").load(location.href + " #current-inventory");
@@ -21,4 +22,4 @@ function updateInventory() {
             console.log("[Error] Something went wrong getting inventory: " + result)
         }
     });
-};
+}

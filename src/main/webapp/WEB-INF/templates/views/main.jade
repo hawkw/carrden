@@ -68,8 +68,14 @@ div.jumbotron.masthead
         data-toggle='modal'
         data-target='#sale'
         class='btn btn-primary btn-lg')
-            span(class='glyphicon glyphicon-edit')
+            span(class='glyphicon glyphicon-shopping-cart')
             span Enter Sale
+        button(
+        data-toggle='modal'
+        data-target='#update'
+        class='btn btn-primary btn-lg')
+            span(class='glyphicon glyphicon-apple')
+            span Update Inventory
 
 div.container
 
@@ -129,6 +135,63 @@ div.container
                         button(
                         type='submit'
                         form="sale-form"
+                        class='btn btn-success')
+                            span(class='glyphicon glyphicon-ok')
+                            span Submit
+
+    div(
+    class='modal'
+    id='update'
+    role='dialog'
+    tabindex='-1'
+    aria-labelledby='Update Inventory'
+    aria-hidden='true')
+        div.modal-dialog
+            div.modal-content
+                div.modal-header
+                    button(
+                    type='button'
+                    class='close update-close'
+                    data-dismiss='modal') &times;
+                    h2 Update Inventory
+                    div(id='sale-status' class='alert alert-block fade' )
+                        button(type='button' class='close update-close') &times;
+                        span(id='update-status-text')
+                div.modal-body
+                    form(
+                    id='update-form'
+                    class='form-horizontal well'
+                    data-async data-target='#update-form'
+                    action='/update/'
+                    method='post')
+                        fieldset(form='update-form')
+                            ul
+                                - for ( (kind, _) <- inventory)
+                                    - var kind_sanitized = kind.replace(' ', '_')
+                                    li(style='list-style-type: none;padding: 10px;')
+                                        div.input-group
+                                            span.input-group-addon
+                                                =kind
+                                            input(
+                                            name=kind_sanitized
+                                            id=kind
+                                            type='text'
+                                            class='form-control'
+                                            placeholder='amount')
+                div.modal-footer
+                    div(
+                    class='btn-group'
+                    role='group')
+                        button(
+                        id='cancel-sale'
+                        type='button'
+                        class='btn btn-danger update-close'
+                        data-dismiss='modal')
+                            span(class='glyphicon glyphicon-remove')
+                            span Cancel
+                        button(
+                        type='submit'
+                        form="update-form"
                         class='btn btn-success')
                             span(class='glyphicon glyphicon-ok')
                             span Submit

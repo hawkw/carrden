@@ -30,13 +30,8 @@ case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with Jac
       "inventory" -> (Try(db.withDynSession {
         produce.list.map { case (name, num, price) => name -> num }.toMap
       }) match {
-        case Success(fully: Map[String,Any]) => fully;
-        case Failure(a: JdbcSQLException) => Map[String,Any]()
-      }),      "inventory" -> (Try(db.withDynSession {
-        produce.list.map { case (name, num, price) => name -> num }.toMap
-      }) match {
-        case Success(fully: Map[String,Any]) => fully;
-        case Failure(a: JdbcSQLException) => Map[String,Any]()
+        case Success(fully: Map[String,Any])  =>  fully;
+        case Failure(a: JdbcSQLException)     =>  Map[String,Any]()
       })
     )
   }
@@ -58,7 +53,10 @@ case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with Jac
     contentType = formats("json")
     log(s"[sale] Recieved $params")
       val date = new Date(System.currentTimeMillis())
-      val sold = params.mapValues{case "" => 0; case s: String => Integer.parseInt(s)}
+      val sold = params
+        .filter{case (key, value) => value != ""}
+        .map{   case (key, value) => (key.replaceAll("_", " "), Integer.parseInt(value))}
+        .filter{case (_, value)   => value > 0 } // just in case
       log(s"[sale] Extracted: $sold")
       db withDynTransaction {
         Try {
@@ -101,20 +99,15 @@ case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with Jac
               } yield inventory.count
               // subtract the amount sold from the previous amount
               update.update(amount)
-              //log(s"Sold $soldCount ${item}s.")
+              log(s"[sale] Sold $soldCount ${item}.")
             }
           }
           processed.map(_._5).sum
         } match {
-          case Success(price) =>
-            //log(s"Replied with sale for \$$price.")
-            Ok(SaleResult(price)) // reply to the client w/ the cost (wrapped in a 200 OK)
-          case Failure(OutOfStockException(what)) =>
-            //log(s"Could not place sale, $what was out of stock.")
-            Ok(OutOfStock(what))
-          case Failure(why) =>
-            //log(s"Could not place sale, an unexpected error occured", why)
-            InternalServerError(why.toString)
+          // reply to the client w/ the cost (wrapped in a 200 OK)
+          case Success(price)                     =>  Ok(SaleResult(price))
+          case Failure(OutOfStockException(what)) =>  Ok(OutOfStock(what))
+          case Failure(why)                       =>  InternalServerError(why.toString)
         }
       }
   }
@@ -125,8 +118,8 @@ case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with Jac
     val added: Map[String,Int] = params.mapValues{
       case "" => 0
       case s: String => Integer.parseInt(s) match {
-        case i if i > 0 => i
-        case _ =>  0
+        case i if i > 0 =>  i
+        case _          =>  0
       }
     }
     log(s"[update-inventory] Extracted: $added")
@@ -137,12 +130,10 @@ case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with Jac
           q.update(produce.filter(_.name === name).map(_.count).list.head + amount)
         }
       ) match {
-        case Success(_) =>
-          //log(s"Replied with sale for \$$price.")
-          Ok() // reply to the client w/ the cost (wrapped in a 200 OK)
-        case Failure(why) =>
-          //log(s"Could not place sale, an unexpected error occured", why)
-          InternalServerError(why.toString)
+        case Success(_)   =>
+          log(s"[update-inventory] Updated inventory successfully.")
+          Ok()
+        case Failure(why) =>  InternalServerError(why.toString)
       }
     }
   }

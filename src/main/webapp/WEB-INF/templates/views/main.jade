@@ -13,8 +13,8 @@
                 url:  $form.attr('action'),
                 data: $form.serialize(),
                 success: function (data, status) {
-                    console.log("this : " + JSON.stringify($(this).attr('data-target')))
-                    console.log("got " + status + ": " + JSON.stringify(data) )
+                    console.log("this : " + JSON.stringify($(this).attr('data-target')));
+                    console.log("got " + status + ": " + JSON.stringify(data));
                     if (data.hasOwnProperty('price')) {
                         $('#sale-status-text').text("$" + data.price.toFixed(2));
                         $('#sale-status').addClass('alert-success in');
@@ -24,8 +24,8 @@
                                 data.what.toString().toLowerCase() + "s");
                         $('#sale-status').addClass('alert-warning in');
                     } else {
-                        console.log("[DEBUG] got weird thing: " + data)
-                        $('#' + $(this).id + '-status-text').text("[DEBUG] got weird thing: " + JSON.stringify(data));
+                        console.log("[Debug] got some kind of weird thing: " + JSON.stringify(data));
+                        $('#' + $(this).id + '-status-text').text("Wtf: " + JSON.stringify(data));
                         $('#' + $(this).id + '-status').addClass('alert-warning in');
                     }
                 },
@@ -139,7 +139,7 @@ div.container
                                             span.input-group-addon
                                                 =kind
                                             input(
-                                                name=kind
+                                                name=kind_sanitized
                                                 id="sale-form-#{kind_sanitized}"
                                                 type='text'
                                                 class='form-control live-price-source'
@@ -199,7 +199,7 @@ div.container
                                             span.input-group-addon
                                                 =kind
                                             input(
-                                                name=kind
+                                                name=kind_sanitized
                                                 id="update-form-#{kind_sanitized}"
                                                 type='text'
                                                 class='form-control positive-only'

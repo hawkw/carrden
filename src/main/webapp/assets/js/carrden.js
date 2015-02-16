@@ -11,7 +11,7 @@ function updateInventory() {
             for (var i in data) {
                 g_inventory[data[i]['name'].replace(' ', '_')] = {
                     amount: data[i]['amount'],
-                    price: data[i]['price']
+                    price:  data[i]['price']
                 };
                 //todo: sane way of attaching stuff to this callback
             }

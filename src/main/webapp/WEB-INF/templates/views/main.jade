@@ -36,6 +36,15 @@
         $('#sale').on('show.bs.modal', function (e) {
            updateInventory()
         }),
+        $(".positive-only").on('keyup', function () {
+            var amount = $(this).val();
+            console.log(amount);
+            if (amount < 0) {
+                $('#' + $(this).attr('name') + '-label').text("Amount must be positive");
+            } else {
+                $('#' + $(this).attr('name') + '-label').text("");
+            }
+        }),
         $(".live-price-source").on('keyup', function () {
             var name = $(this).attr('name');
             var amountPurchased = $(this).val();
@@ -113,12 +122,13 @@ div.container
                                             span.input-group-addon
                                                 =kind
                                             input(
-                                                name=kind_sanitized
+                                                name="sale-form-#{kind_sanitized}"
                                                 id=kind
                                                 type='text'
-                                                class='form-control live-price-source'
+                                                class='form-control live-price-source positive-only'
                                                 placeholder='amount')
-                                            span(class='input-group-addon live-price' id='#{kind_sanitized}-price') $0.00
+                                            span(class='label label-danger label-inside-input' id='sale-form-#{kind_sanitized}-label')
+                                            span(class='input-group-addon live-price' id='sale-form-#{kind_sanitized}-price') $0.00
 
 
                 div.modal-footer
@@ -173,11 +183,12 @@ div.container
                                             span.input-group-addon
                                                 =kind
                                             input(
-                                            name=kind_sanitized
-                                            id=kind
-                                            type='text'
-                                            class='form-control'
-                                            placeholder='amount')
+                                                name="update-form-#{kind_sanitized}"
+                                                id=kind
+                                                type='text'
+                                                class='form-control positive-only'
+                                                placeholder='amount')
+                                            span(class='label label-danger label-inside-input' id='update-form-#{kind_sanitized}-label')
                 div.modal-footer
                     div(
                     class='btn-group'

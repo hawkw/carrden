@@ -1,0 +1,14 @@
+.form-group {
+    position: relative;
+}
+
+input[type="text"] {
+    padding-right: 60px;
+}
+
+.label-inside-input {
+    position: absolute;
+    left: 318px;
+    top: 9px;
+    z-index: 5;
+}

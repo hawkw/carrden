@@ -4,6 +4,7 @@
 :javascript
     $(function() {
         $('form[data-async]').on('submit', function (event) {
+            console.log('in data-async')
             event.preventDefault();
             var $form = $(this);
             var $target = $($form.attr('data-target'));
@@ -185,7 +186,7 @@ div.container
                     id='update-form'
                     class='form-horizontal well'
                     data-async data-target='#update-form'
-                    action='/update/'
+                    action='/update-inventory/'
                     method='post')
                         fieldset(form='update-form')
                             ul

@@ -56,10 +56,10 @@ case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with Jac
 
   post("/sale/") {
     contentType = formats("json")
-    log(s"Recieved $params")
+    log(s"[sale] Recieved $params")
       val date = new Date(System.currentTimeMillis())
       val sold = params.mapValues{case "" => 0; case s: String => Integer.parseInt(s)}
-      log(s"Extracted: $sold")
+      log(s"[sale] Extracted: $sold")
       db withDynTransaction {
         Try {
           // start a new transaction
@@ -118,6 +118,35 @@ case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with Jac
         }
       }
   }
+
+  post("/update-inventory/") {
+    contentType = formats("json")
+    log(s"[update-inventory] Recieved $params")
+    val added: Map[String,Int] = params.mapValues{
+      case "" => 0
+      case s: String => Integer.parseInt(s) match {
+        case i if i > 0 => i
+        case _ =>  0
+      }
+    }
+    log(s"[update-inventory] Extracted: $added")
+    db withDynTransaction {
+      Try(
+        for ((name, amount) <- added) {
+          val q = for { item <- produce if item.name === name } yield item.count
+          q.update(produce.filter(_.name === name).map(_.count).list.head + amount)
+        }
+      ) match {
+        case Success(_) =>
+          //log(s"Replied with sale for \$$price.")
+          Ok() // reply to the client w/ the cost (wrapped in a 200 OK)
+        case Failure(why) =>
+          //log(s"Could not place sale, an unexpected error occured", why)
+          InternalServerError(why.toString)
+      }
+    }
+  }
+
 }
 case class CarrdenAdmin(db: Database) extends CarrdenInventoryStack {
 

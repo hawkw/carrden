@@ -132,7 +132,7 @@ case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with Jac
     log(s"[update-inventory] Extracted: $added")
     db withDynTransaction {
       Try(
-        for ((name, amount) <- added) {
+        for ((name, amount) <- added if amount > 0) {
           val q = for { item <- produce if item.name === name } yield item.count
           q.update(produce.filter(_.name === name).map(_.count).list.head + amount)
         }

@@ -38,25 +38,39 @@
         }),
         $(".positive-only").on('keyup', function () {
             var amount = $(this).val();
-            console.log(amount);
+            var label = $('#update-form-' + $(this).attr('name') + '-label')
+            //console.log(amount);
             if (amount < 0) {
-                $('#' + $(this).attr('name') + '-label').text("Amount must be positive");
+                label.addClass("label-warning");
+                label.text("Amount must be positive");
             } else {
-                $('#' + $(this).attr('name') + '-label').text("");
+                label.text("");
+                label.removeClass("label-warning");
             }
         }),
         $(".live-price-source").on('keyup', function () {
             var name = $(this).attr('name');
             var amountPurchased = $(this).val();
-            var result;
-            if (g_inventory[name]['amount'] < amountPurchased) {
-                result = "Only " + g_inventory[name]['amount'] + " in stock!"
+            var label = $('#sale-form-' + name + '-label')
+            //console.log(amountPurchased)
+            if (amountPurchased < 0) {
+                label.removeClass("label-success label-danger");
+                label.addClass("label-warning");
+                label.text("Amount must be positive");
+            } else if (amountPurchased === "") {
+                label.removeClass("label-success label-danger label-warning");
+                label.text("");
             } else {
-                result = "$" + (g_inventory[name]['price'] * amountPurchased).toFixed(2);
+                if (g_inventory[name]['amount'] < amountPurchased) {
+                    label.removeClass("label-success label-warning");
+                    label.addClass("label-danger");
+                    label.text("Only " + g_inventory[name]['amount'] + " in stock.");
+                } else {
+                    label.removeClass("label-danger label-warning");
+                    label.addClass("label-success");
+                    label.text("$" + (g_inventory[name]['price'] * amountPurchased).toFixed(2));
+                }
             }
-
-            //console.log('cost was  '+ totalcost)
-            $('#' + name + '-price').html(result);
         }),
         $('.sale-close').click(function () {
             $('#sale-status').removeClass('in alert-warning alert-success alert-failure');
@@ -122,13 +136,12 @@ div.container
                                             span.input-group-addon
                                                 =kind
                                             input(
-                                                name="sale-form-#{kind_sanitized}"
-                                                id=kind
+                                                name=kind_sanitized
+                                                id="sale-form-#{kind_sanitized}"
                                                 type='text'
-                                                class='form-control live-price-source positive-only'
+                                                class='form-control live-price-source'
                                                 placeholder='amount')
-                                            span(class='label label-danger label-inside-input' id='sale-form-#{kind_sanitized}-label')
-                                            span(class='input-group-addon live-price' id='sale-form-#{kind_sanitized}-price') $0.00
+                                            span(class='label label-inside-input' id='sale-form-#{kind_sanitized}-label')
 
 
                 div.modal-footer
@@ -183,12 +196,12 @@ div.container
                                             span.input-group-addon
                                                 =kind
                                             input(
-                                                name="update-form-#{kind_sanitized}"
-                                                id=kind
+                                                name=kind_sanitized
+                                                id="update-form-#{kind_sanitized}"
                                                 type='text'
                                                 class='form-control positive-only'
                                                 placeholder='amount')
-                                            span(class='label label-danger label-inside-input' id='update-form-#{kind_sanitized}-label')
+                                            span(class='label label-inside-input' id='update-form-#{kind_sanitized}-label')
                 div.modal-footer
                     div(
                     class='btn-group'

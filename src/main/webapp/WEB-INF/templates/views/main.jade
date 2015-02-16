@@ -13,6 +13,7 @@
                 url:  $form.attr('action'),
                 data: $form.serialize(),
                 success: function (data, status) {
+                    console.log("this : " + $(this).attr('data-target'))
                     if (data.hasOwnProperty('price')) {
                         $('#sale-status-text').text("$" + data.price.toFixed(2));
                         $('#sale-status').addClass('alert-success in');
@@ -23,13 +24,13 @@
                         $('#sale-status').addClass('alert-warning in');
                     } else {
                         console.log("[DEBUG] got weird thing: " + data)
-                        $('#sale-status-text').text("[DEBUG] got weird thing: " + data);
-                        $('#sale-status').addClass('alert-warning in');
+                        $('#' + $(this).id + '-status-text').text("[DEBUG] got weird thing: " + data);
+                        $('#' + $(this).id + '-status').addClass('alert-warning in');
                     }
                 },
                 error: function (result) {
-                    $('#sale-status-text').text("Error" + result.code);
-                    $('#sale-status').addClass('alert-failure in')
+                    $('#' + $(this).id + '-status-text').text("Error" + result.code);
+                    $('#' + $(this).id + '-status').addClass('alert-failure in')
                 }
             });
             $('#sale-form')[0].reset()
@@ -118,9 +119,9 @@ div.container
                         class='close sale-close'
                         data-dismiss='modal') &times;
                     h2 Sale
-                    div(id='sale-status' class='alert alert-block fade' )
+                    div(id='sale-form-status' class='alert alert-block fade' )
                         button(type='button' class='close sale-close') &times;
-                        span(id='sale-status-text')
+                        span(id='sale-form-status-text')
                 div.modal-body
                     form(
                     id='sale-form'
@@ -178,9 +179,9 @@ div.container
                     class='close update-close'
                     data-dismiss='modal') &times;
                     h2 Update Inventory
-                    div(id='sale-status' class='alert alert-block fade' )
+                    div(id='update-form-status' class='alert alert-block fade' )
                         button(type='button' class='close update-close') &times;
-                        span(id='update-status-text')
+                        span(id='update-form-status-text')
                 div.modal-body
                     form(
                     id='update-form'

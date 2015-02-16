@@ -15,7 +15,7 @@ function updateInventory() {
                 };
                 //todo: sane way of attaching stuff to this callback
             }
-            console.log("[Info] Got current inventory: " + g_inventory)
+            console.log("[Info] Got current inventory: " + JSON.stringify(g_inventory))
             $("#current-inventory").load(location.href + " #current-inventory");
         },
         error: function (result) {

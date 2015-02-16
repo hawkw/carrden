@@ -3,6 +3,7 @@ package edu.allegheny.carrden
 import java.sql.Date
 
 import Tables._
+import com.typesafe.scalalogging.LazyLogging
 import org.h2.jdbc.JdbcSQLException
 import org.scalatra._
 import org.scalatra.json._
@@ -11,9 +12,8 @@ import scalate.ScalateSupport
 import scala.slick.driver.H2Driver.simple._
 import scala.slick.jdbc.JdbcBackend.Database.dynamicSession
 import scala.util.{Try, Success, Failure}
-import scala.slick.jdbc.{GetResult, StaticQuery => Q}
 
-case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with JacksonJsonSupport {
+case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with JacksonJsonSupport with LazyLogging {
 
   protected implicit val jsonFormats: Formats = DefaultFormats
 
@@ -51,70 +51,71 @@ case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with Jac
 
   post("/sale/") {
     contentType = formats("json")
-    log(s"[sale] Recieved $params")
-      val date = new Date(System.currentTimeMillis())
-      val sold = params
-        .filter{case (key, value) => value != ""}
-        .map{   case (key, value) => (key.replaceAll("_", " "), Integer.parseInt(value))}
-        .filter{case (_, value)   => value > 0 } // just in case
-      log(s"[sale] Extracted: $sold")
-      db withDynTransaction {
-        Try {
-          // start a new transaction
-          // (if 2+ point-of-sale clients are connected, we don't want
-          // them to try to add sales with the same number)
-          val saleNum = sales // the sale number is equal to...
-            .filter(_.date === date) // get all sale records for today
-            .map(_.saleNum) // extract the sale numbers
-            .list
-            .reduceOption(_ max _)
-            .getOrElse(0) + 1 // find the last sale number & increment
-          val processed = for {(item, count) <- sold if count > 0}
-            yield {
-              // generate the tuples to insert into the DB
-              (date,
-                saleNum,
-                item,
-                count,
-                produce // get the current price for that produce item
-                  .filter(_.name === item) // select the row for this item
-                  .map(_.price) // extract the price
-                  .first * count // multiply by the amount sold
-                )
-            }
-          sales ++= processed // insert rows into the DB
-          for {sale <- processed} {
-            val (item, soldCount: Int) = (sale._3, sale._4)
-            val currentCount: Int = produce // get the current count of that item
-              .filter(_.name === item)
-              .map(_.count)
-              .list
-              .head
-            val amount = currentCount - soldCount
-            if (amount <= 0){
-              throw OutOfStockException(item)
-            } else {
-              val update = for {
-                inventory <- produce if inventory.name === item
-              } yield inventory.count
-              // subtract the amount sold from the previous amount
-              update.update(amount)
-              log(s"[sale] Sold $soldCount ${item}.")
-            }
+    logger.debug(s"[sale] Recieved $params")
+    val date = new Date(System.currentTimeMillis())
+    val sold = params
+      .filter{case (key, value) => value != ""}
+      .map{   case (key, value) => (key.replaceAll("_", " "), Integer.parseInt(value))}
+      .filter{case (_, value)   => value > 0 } // just in case
+    logger.debug(s"[sale] Extracted: $sold")
+    db withDynTransaction {
+      Try {
+        // start a new transaction
+        // (if 2+ point-of-sale clients are connected, we don't want
+        // them to try to add sales with the same number)
+        val saleNum = sales // the sale number is equal to...
+          .filter(_.date === date) // get all sale records for today
+          .map(_.saleNum) // extract the sale numbers
+          .list
+          .reduceOption(_ max _)
+          .getOrElse(0) + 1 // find the last sale number & increment
+        val processed = for {(item, count) <- sold if count > 0}
+          yield {
+            // generate the tuples to insert into the DB
+            (date,
+              saleNum,
+              item,
+              count,
+              produce // get the current price for that produce item
+                .filter(_.name === item) // select the row for this item
+                .map(_.price) // extract the price
+                .first * count // multiply by the amount sold
+              )
           }
-          processed.map(_._5).sum
-        } match {
-          // reply to the client w/ the cost (wrapped in a 200 OK)
-          case Success(price)                     =>  Ok(SaleResult(price))
-          case Failure(OutOfStockException(what)) =>  Ok(OutOfStock(what))
-          case Failure(why)                       =>  InternalServerError(why.toString)
+        sales ++= processed // insert rows into the DB
+        for {sale <- processed} {
+          val (item, soldCount: Int) = (sale._3, sale._4)
+          val currentCount: Int = produce // get the current count of that item
+            .filter(_.name === item)
+            .map(_.count)
+            .list
+            .head
+          val amount = currentCount - soldCount
+          if (amount <= 0){
+            logger.debug(s"[sale] $item} was out of stock.")
+            throw OutOfStockException(item)
+          } else {
+            val update = for {
+              inventory <- produce if inventory.name === item
+            } yield inventory.count
+            // subtract the amount sold from the previous amount
+            update.update(amount)
+            logger.info(s"[sale] Sold $soldCount $item.")
+          }
         }
+        processed.map(_._5).sum
+      } match {
+        // reply to the client w/ the cost (wrapped in a 200 OK)
+        case Success(price)                     =>  Ok(SaleResult(price))
+        case Failure(OutOfStockException(what)) =>  Ok(OutOfStock(what))
+        case Failure(why)                       =>  InternalServerError(why.toString)
       }
+    }
   }
 
   post("/update-inventory/") {
     contentType = formats("json")
-    log(s"[update-inventory] Recieved $params")
+    logger.debug(s"[update-inventory] Recieved $params")
     val added: Map[String,Int] = params.mapValues{
       case "" => 0
       case s: String => Integer.parseInt(s) match {
@@ -122,7 +123,7 @@ case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with Jac
         case _          =>  0
       }
     }
-    log(s"[update-inventory] Extracted: $added")
+    logger.debug(s"[update-inventory] Extracted: $added")
     db withDynTransaction {
       Try(
         for ((name, amount) <- added if amount > 0) {
@@ -130,16 +131,14 @@ case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with Jac
           q.update(produce.filter(_.name === name).map(_.count).list.head + amount)
         }
       ) match {
-        case Success(_)   =>
-          log(s"[update-inventory] Updated inventory successfully.")
-          Ok()
+        case Success(_)   =>  Ok()
         case Failure(why) =>  InternalServerError(why.toString)
       }
     }
   }
 
 }
-case class CarrdenAdmin(db: Database) extends CarrdenInventoryStack {
+case class CarrdenAdmin(db: Database) extends CarrdenInventoryStack with LazyLogging {
 
   get("/") {
     contentType="text/html"
@@ -161,7 +160,7 @@ case class CarrdenAdmin(db: Database) extends CarrdenInventoryStack {
   }
 
   post("/db/create-tables/") {
-    log("Got request to create tables.")
+    logger.info("Got request to create tables.")
     Try(
       db withDynSession {
         ( produce.schema ++ sales.schema).create
@@ -186,7 +185,7 @@ case class CarrdenAdmin(db: Database) extends CarrdenInventoryStack {
       }
     ) match {
       case Success(_) =>
-        log("Created tables successfully")
+        logger.info("Created tables successfully")
         Created("tables created successfully")
       // TODO: match possible reasons tables could not be created
       case Failure(why) =>
@@ -196,12 +195,12 @@ case class CarrdenAdmin(db: Database) extends CarrdenInventoryStack {
   }
 
   post("/db/drop-tables/") {
-    log("Got request to drop tables.")
+    logger.info("Got request to drop tables.")
     Try(
       db withDynSession ( produce.schema ++ sales.schema).drop
     ) match {
       case Success(_) =>
-        log("Dropped tables")
+        logger.info("Dropped tables")
         Ok("tables dropped successfully")
       // TODO: match possible reasons tables could not be dropped
       case Failure(why) =>

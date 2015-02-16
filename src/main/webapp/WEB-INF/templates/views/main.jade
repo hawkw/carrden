@@ -16,13 +16,13 @@
                     console.log("this : " + JSON.stringify($(this).attr('data-target')));
                     console.log("got " + status + ": " + JSON.stringify(data));
                     if (data.hasOwnProperty('price')) {
-                        $('#sale-status-text').text("$" + data.price.toFixed(2));
-                        $('#sale-status').addClass('alert-success in');
+                        $('#sale-form-status-text').text("$" + data.price.toFixed(2));
+                        $('#sale-form-status').addClass('alert-success in');
                     } else if (data.hasOwnProperty('what')) {
-                        $('#sale-status-text').html(
+                        $('#sale-form-status-text').html(
                                 "<strong>Out of stock:</strong> not enough " +
                                 data.what.toString().toLowerCase() + "s");
-                        $('#sale-status').addClass('alert-warning in');
+                        $('#sale-form-status').addClass('alert-warning in');
                     } else {
                         console.log("[Debug] got some kind of weird thing: " + JSON.stringify(data));
                         $('#' + $(this).id + '-status-text').text("Wtf: " + JSON.stringify(data));

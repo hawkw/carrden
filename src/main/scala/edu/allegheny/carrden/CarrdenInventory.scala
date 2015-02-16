@@ -56,7 +56,7 @@ case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with Jac
     val sold = params
       .filter{case (key, value) => value != ""}
       .map{   case (key, value) => (key.replaceAll("_", " "), Integer.parseInt(value))}
-      .filter{case (_, value)   => value > 0 } // just in case
+      .filter{case (_,   value) => value > 0 } // just in case
     logger.debug(s"[sale] Extracted: $sold")
     db withDynTransaction {
       Try {
@@ -91,7 +91,7 @@ case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with Jac
             .list
             .head
           val amount = currentCount - soldCount
-          if (amount <= 0){
+          if (amount < 0){
             logger.debug(s"[sale] $item} was out of stock.")
             throw OutOfStockException(item)
           } else {
@@ -116,19 +116,17 @@ case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with Jac
   post("/update-inventory/") {
     contentType = formats("json")
     logger.debug(s"[update-inventory] Recieved $params")
-    val added: Map[String,Int] = params.mapValues{
-      case "" => 0
-      case s: String => Integer.parseInt(s) match {
-        case i if i > 0 =>  i
-        case _          =>  0
-      }
-    }
+    val added: Map[String,Int] = params
+      .filter{case (key, value) => value != ""}
+      .map{   case (key, value) => (key.replaceAll("_", " "), Integer.parseInt(value))}
+      .filter{case (_,   value) => value > 0 } // just in case
     logger.debug(s"[update-inventory] Extracted: $added")
     db withDynTransaction {
       Try(
         for ((name, amount) <- added if amount > 0) {
           val q = for { item <- produce if item.name === name } yield item.count
           q.update(produce.filter(_.name === name).map(_.count).list.head + amount)
+          logger.info(s"[update-inventory] Added: $amount $name")
         }
       ) match {
         case Success(_)   =>  Ok()

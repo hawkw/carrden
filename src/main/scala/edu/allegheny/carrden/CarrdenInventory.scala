@@ -22,6 +22,7 @@ case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with Jac
   case class OutOfStock(what: String)
   case class OutOfStockException(what: String) extends Exception
   case class InventoryItem(name: String, amount: Int, price: Double)
+  case class UpdateResult(whatHappened: String)
 
   get("/") {
     contentType = "text/html"
@@ -115,7 +116,7 @@ case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with Jac
 
   post("/update-inventory/") {
     contentType = formats("json")
-    logger.debug(s"[update-inventory] Recieved $params")
+    logger.info(s"[update-inventory] Recieved $params")
     val added: Map[String,Int] = params
       .filter{case (key, value) => value != ""}
       .map{   case (key, value) => (key.replaceAll("_", " "), Integer.parseInt(value))}
@@ -129,8 +130,8 @@ case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with Jac
           logger.info(s"[update-inventory] Added: $amount $name")
         }
       ) match {
-        case Success(_)   =>  Ok()
-        case Failure(why) =>  InternalServerError(why.toString)
+        case Success(_)   =>  {logger.info("[update-inventory] sent 200 OK"); Ok(UpdateResult("Updated Successfully")) }
+        case Failure(why) =>  InternalServerError(UpdateResult(why.toString))
       }
     }
   }

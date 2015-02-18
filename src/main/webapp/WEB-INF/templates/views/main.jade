@@ -8,6 +8,8 @@
             event.preventDefault();
             var $form = $(this);
             var $target = $($form.attr('data-target'));
+            console.warn($form.attr('method'))
+            console.warn($form.attr('action'))
             $.ajax({
                 type: $form.attr('method'),
                 url:  $form.attr('action'),
@@ -29,16 +31,19 @@
                         $('#' + $(this).id + '-status').addClass('alert-warning in');
                     }
                 },
-                error: function (result) {
-                    $('#' + $(this).id + '-status-text').text("Error" + result.code);
+                error: function (jqXHR,textStatus,errorString) {
+                    console.warn(jqXHR);
+                    console.warn(textStatus);
+                    console.warn(errorString);
+                    $('#' + $(this).id + '-status-text').text("Error" + errorString);
                     $('#' + $(this).id + '-status').addClass('alert-failure in')
                 }
             });
             $('#sale-form')[0].reset()
-        }),
+        });
         $('#sale').on('show.bs.modal', function (e) {
            updateInventory()
-        }),
+        });
         $(".positive-only").on('keyup', function () {
             var amount = $(this).val();
             var label = $('#update-form-' + $(this).attr('name') + '-label')
@@ -50,7 +55,7 @@
                 label.text("");
                 label.removeClass("label-warning");
             }
-        }),
+        });
         $(".live-price-source").on('keyup', function () {
             var name = $(this).attr('name');
             var amountPurchased = $(this).val();
@@ -74,13 +79,19 @@
                     label.text("$" + (g_inventory[name]['price'] * amountPurchased).toFixed(2));
                 }
             }
-        }),
+        });
         $('.sale-close').click(function () {
-            $('#sale-status').removeClass('in alert-warning alert-success alert-failure');
+            $('#sale-form-status').removeClass('in alert-warning alert-success alert-failure');
             $('#sale-form')[0].reset();
             $('.live-price').html('$0.00');
             window.location.reload(true); // TODO: get table contents dynamically instead
-        }),
+        });
+        $('.update-close').click(function () {
+            $('#update-form-status').removeClass('in alert-warning alert-success alert-failure');
+            $('#update-form')[0].reset();
+            $('.update-positive').text('');
+            window.location.reload(true); // TODO: get table contents dynamically instead
+        });
         $('.close').click(function () {
             $(this).parent.removeClass('in')
         });
@@ -189,7 +200,7 @@ div.container
                     class='form-horizontal well'
                     data-async data-target='#update-form'
                     action='/update-inventory/'
-                    method='post')
+                    method='POST')
                         fieldset(form='update-form')
                             ul
                                 - for ( (kind, _) <- inventory)
@@ -204,7 +215,7 @@ div.container
                                                 type='text'
                                                 class='form-control positive-only'
                                                 placeholder='amount')
-                                            span(class='label label-inside-input live-price' id='update-form-#{kind_sanitized}-label')
+                                            span(class='label label-inside-input update-positive' id='update-form-#{kind_sanitized}-label')
                 div.modal-footer
                     div(
                     class='btn-group'

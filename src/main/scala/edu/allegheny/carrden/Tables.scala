@@ -40,4 +40,16 @@ object Tables {
 
   val sales = TableQuery[Sales]
 
+
+  class Auth(tag:Tag) extends Table[(String,String,String)](tag, "AUTH") {
+    def account = column[String]("ACCOUNT", O.PrimaryKey)
+    def hash    = column[String]("HASH", O.NotNull)
+    def salt    = column[String]("SALT", O.NotNull)
+
+    def * = (account,hash,salt)
+  }
+
+
+  val auth = TableQuery[Auth]
+
 }

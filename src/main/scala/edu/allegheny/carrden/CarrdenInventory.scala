@@ -13,16 +13,17 @@ import scala.slick.driver.H2Driver.simple._
 import scala.slick.jdbc.JdbcBackend.Database.dynamicSession
 import scala.util.{Try, Success, Failure}
 
+
+case class Sale(sold: Map[String, String])
+case class SaleResult(price: Double)
+case class OutOfStock(what: String)
+case class OutOfStockException(what: String) extends Exception
+case class InventoryItem(name: String, amount: Int, price: Double)
+case class UpdateResult(whatHappened: String)
+
 case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with JacksonJsonSupport with LazyLogging {
 
   protected implicit val jsonFormats: Formats = DefaultFormats
-
-  case class Sale(sold: Map[String, String])
-  case class SaleResult(price: Double)
-  case class OutOfStock(what: String)
-  case class OutOfStockException(what: String) extends Exception
-  case class InventoryItem(name: String, amount: Int, price: Double)
-  case class UpdateResult(whatHappened: String)
 
   get("/") {
     contentType = "text/html"
@@ -137,10 +138,12 @@ case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with Jac
   }
 
 }
-case class CarrdenAdmin(db: Database) extends CarrdenInventoryStack with LazyLogging {
+case class CarrdenAdmin(db: Database) extends CarrdenInventoryStack with JacksonJsonSupport with LazyLogging {
+  protected implicit val jsonFormats: Formats = DefaultFormats
 
   get("/") {
     contentType="text/html"
+    logger.debug("Serving main admin page")
     jade(
       "admin",
       "inventory" -> (Try(db.withDynSession {
@@ -159,7 +162,7 @@ case class CarrdenAdmin(db: Database) extends CarrdenInventoryStack with LazyLog
   }
 
   post("/db/create-tables/") {
-    logger.info("Got request to create tables.")
+    logger.info("[create-tables] Got request to create tables.")
     Try(
       db withDynSession {
         ( produce.schema ++ sales.schema).create
@@ -188,12 +191,14 @@ case class CarrdenAdmin(db: Database) extends CarrdenInventoryStack with LazyLog
         Created("tables created successfully")
       // TODO: match possible reasons tables could not be created
       case Failure(why) =>
-        log("Could not create tables", why)
+        logger.warn("Could not create tables", why)
         InternalServerError(why.toString)
     }
   }
 
   post("/db/drop-tables/") {
+
+    // TODO: expect auth
     logger.info("Got request to drop tables.")
     Try(
       db withDynSession ( produce.schema ++ sales.schema).drop
@@ -201,16 +206,31 @@ case class CarrdenAdmin(db: Database) extends CarrdenInventoryStack with LazyLog
       case Success(_) =>
         logger.info("Dropped tables")
         Ok("tables dropped successfully")
-      // TODO: match possible reasons tables could not be dropped
       case Failure(why) =>
-        log("Could not drop tables", why)
+        logger.warn("Could not drop tables", why)
+        InternalServerError(why.toString)
+    }
+  }
+  post("/db/add-produce/"){
+    // TODO: expect auth
+    contentType = formats("json")
+    logger.info("[add-produce] Got request to add produce item.")
+    Try(parsedBody.extract[InventoryItem]).map{ newItem =>
+      logger.info(s"[update-inventory] Extracted $newItem")
+      db withDynSession ( produce += (newItem.name, 0, newItem.price) )
+      s"Successfully added $newItem"
+    } match {
+      case Success(fully) => Created(UpdateResult(fully))
+      case Failure(why)   =>
+        logger.warn("[add-produce] Could not create new produce item", why)
         InternalServerError(why.toString)
     }
   }
 
   post("/db/load-test-data/") {
 
-    log("Got request to load test db values.")
+    // TODO: expect auth
+    logger.info("Got request to load test db values.")
     db withDynSession {
       produce insertAll (
         ("Roma Tomato", 15, 1.25),

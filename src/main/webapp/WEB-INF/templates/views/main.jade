@@ -2,6 +2,9 @@
 
 - attributes("title") = "Carrden Inventory"
 :javascript
+    String.prototype.capitalize = function () {
+        return this.charAt(0).toUpperCase() + this.slice(1);
+    }
     $(function() {
         $('form[data-async]').on('submit', function (event) {
             console.log('in data-async')
@@ -25,7 +28,13 @@
                                 "<strong>Out of stock:</strong> not enough " +
                                 data.what.toString().toLowerCase() + "s");
                         $('#sale-form-status').addClass('alert-warning in');
+                    } else if (data.hasOwnProperty('whatHappened')) {
+                        $('#update-form-status-text').html(
+                                "<strong>" + status.capitalize() + ":</strong> " +
+                                data.whatHappened.toString().toLowerCase())
+                        $('#update-form-status').addClass('alert-success in');
                     } else {
+
                         console.log("[Debug] got some kind of weird thing: " + JSON.stringify(data));
                         $('#' + $(this).id + '-status-text').text("Wtf: " + JSON.stringify(data));
                         $('#' + $(this).id + '-status').addClass('alert-warning in');

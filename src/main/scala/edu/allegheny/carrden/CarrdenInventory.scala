@@ -13,16 +13,17 @@ import scala.slick.driver.H2Driver.simple._
 import scala.slick.jdbc.JdbcBackend.Database.dynamicSession
 import scala.util.{Try, Success, Failure}
 
+
+case class Sale(sold: Map[String, String])
+case class SaleResult(price: Double)
+case class OutOfStock(what: String)
+case class OutOfStockException(what: String) extends Exception
+case class InventoryItem(name: String, amount: Int, price: Double)
+case class UpdateResult(whatHappened: String)
+
 case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with JacksonJsonSupport with LazyLogging {
 
   protected implicit val jsonFormats: Formats = DefaultFormats
-
-  case class Sale(sold: Map[String, String])
-  case class SaleResult(price: Double)
-  case class OutOfStock(what: String)
-  case class OutOfStockException(what: String) extends Exception
-  case class InventoryItem(name: String, amount: Int, price: Double)
-  case class UpdateResult(whatHappened: String)
 
   get("/") {
     contentType = "text/html"
@@ -137,7 +138,8 @@ case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with Jac
   }
 
 }
-case class CarrdenAdmin(db: Database) extends CarrdenInventoryStack with LazyLogging {
+case class CarrdenAdmin(db: Database) extends CarrdenInventoryStack with JacksonJsonSupport with LazyLogging {
+  protected implicit val jsonFormats: Formats = DefaultFormats
 
   get("/") {
     contentType="text/html"
@@ -205,6 +207,18 @@ case class CarrdenAdmin(db: Database) extends CarrdenInventoryStack with LazyLog
       case Failure(why) =>
         log("Could not drop tables", why)
         InternalServerError(why.toString)
+    }
+  }
+  post("/db/add-produce/"){
+    contentType = formats("json")
+    logger.info("[add-produce] Got request to add produce item.")
+    Try(parsedBody.extract[InventoryItem]).map{ newItem =>
+      logger.info(s"[update-inventory] Recieved $newItem")
+      db withDynSession ( produce += (newItem.name, 0, newItem.price) )
+      s"Successfully added $newItem"
+    } match {
+      case Success(fully) => Created(UpdateResult(fully))
+      case Failure(why)   => InternalServerError(why.toString)
     }
   }
 

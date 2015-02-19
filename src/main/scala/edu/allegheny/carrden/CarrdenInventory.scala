@@ -226,6 +226,18 @@ case class CarrdenAdmin(db: Database) extends CarrdenInventoryStack with Jackson
         InternalServerError(why.toString)
     }
   }
+  post("/db/add-produce/"){
+    contentType = formats("json")
+    logger.info("[add-produce] Got request to add produce item.")
+    Try(parsedBody.extract[InventoryItem]).map{ newItem =>
+      logger.info(s"[update-inventory] Recieved $newItem")
+      db withDynSession ( produce += (newItem.name, 0, newItem.price) )
+      s"Successfully added $newItem"
+    } match {
+      case Success(fully) => Created(UpdateResult(fully))
+      case Failure(why)   => InternalServerError(why.toString)
+    }
+  }
 
   post("/db/load-test-data/") {
 

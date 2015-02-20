@@ -7,11 +7,12 @@ import java.security.MessageDigest
  */
 package object authtools {
 
-  def hash(pass: String)(implicit saltLength: Int,random: scala.util.Random): String = {
-    val hasher = MessageDigest.getInstance("SHA_512")
-    hasher update (pass getBytes)
-    hasher update ( randomAlphanumericString(saltLength) getBytes )
-    Seq( hasher digest ) map (Integer toHexString (_) ) mkString
+  def hash(pass: String, algorithm: String = "SHA_512")(implicit saltLength: Int,random: scala.util.Random): (String,String) = {
+    val hasher = MessageDigest.getInstance(algorithm)
+    val salt = randomAlphanumericString(saltLength)
+    hasher update ( pass getBytes )
+    hasher update ( salt getBytes )
+    (hasher.digest.map(Integer.toHexString(_)).mkString, salt)
   }
   def randomString(alphabet: String)(n: Int)(implicit random: scala.util.Random): String =
     Stream.continually(random.nextInt(alphabet.size))

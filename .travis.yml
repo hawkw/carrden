@@ -1,0 +1,7 @@
+language: scala
+sbt_args: "-sbt-version 0.13.7"
+scala:
+- 2.10.4
+- 2.11.2
+- 2.11.4
+script: sbt test

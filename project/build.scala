@@ -27,6 +27,7 @@ object CarrdenInventoryBuild extends Build {
         "org.scalatra"                %%  "scalatra-scalate"  % ScalatraVersion,
         "org.scalatra"                %%  "scalatra-specs2"   % ScalatraVersion   % "test",
         "org.scalatra"                %%  "scalatra-json"     % ScalatraVersion,
+        "org.scalatra"                %%  "scalatra-auth"     % "2.4.0",
         "org.json4s"                  %%  "json4s-jackson"    % "3.2.11",
         "com.typesafe.slick"          %%  "slick"             % SlickVersion,
         "com.typesafe.scala-logging"  %%  "scala-logging"     % "3.1.0",
@@ -35,7 +36,8 @@ object CarrdenInventoryBuild extends Build {
         "ch.qos.logback"              %   "logback-classic"   % "1.1.2"           % "runtime",
         "org.eclipse.jetty"           %   "jetty-webapp"      % "9.1.5.v20140505" % "container",
         "org.eclipse.jetty"           %   "jetty-plus"        % "9.1.5.v20140505" % "container",
-        "javax.servlet"               %   "javax.servlet-api" % "3.1.0"
+        "javax.servlet"               %   "javax.servlet-api" % "3.1.0",
+        "org.mindrot"                 %   "jbcrypt"           % "0.3m"
       ),
       scalateTemplateConfig in Compile <<= (sourceDirectory in Compile){ base =>
         Seq(

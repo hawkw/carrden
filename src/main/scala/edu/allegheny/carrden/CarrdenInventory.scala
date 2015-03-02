@@ -5,6 +5,7 @@ import java.sql.Date
 import Tables._
 import com.typesafe.scalalogging.LazyLogging
 import org.h2.jdbc.JdbcSQLException
+import org.mindrot.jbcrypt.BCrypt
 import org.scalatra._
 import org.scalatra.json._
 import org.json4s.{DefaultFormats, Formats}
@@ -141,6 +142,13 @@ case class CarrdenInventory(db: Database) extends CarrdenInventoryStack with Jac
 case class CarrdenAdmin(db: Database) extends CarrdenInventoryStack with JacksonJsonSupport with LazyLogging {
   protected implicit val jsonFormats: Formats = DefaultFormats
 
+  private def createAccount(name: String, password: String): Try[Unit] = {
+    Try{
+      val salt = BCrypt.gensalt()
+      db withDynSession { auth += (name, salt, BCrypt.hashpw(password,salt)) }
+    }
+  }
+
   get("/") {
     contentType="text/html"
     logger.debug("Serving main admin page")
@@ -165,7 +173,7 @@ case class CarrdenAdmin(db: Database) extends CarrdenInventoryStack with Jackson
     logger.info("[create-tables] Got request to create tables.")
     Try(
       db withDynSession {
-        ( produce.schema ++ sales.schema).create
+        ( produce.schema ++ sales.schema ++ auth.schema ).create
 
         /*
         //todo: fix
@@ -224,18 +232,6 @@ case class CarrdenAdmin(db: Database) extends CarrdenInventoryStack with Jackson
       case Failure(why)   =>
         logger.warn("[add-produce] Could not create new produce item", why)
         InternalServerError(why.toString)
-    }
-  }
-  post("/db/add-produce/"){
-    contentType = formats("json")
-    logger.info("[add-produce] Got request to add produce item.")
-    Try(parsedBody.extract[InventoryItem]).map{ newItem =>
-      logger.info(s"[update-inventory] Recieved $newItem")
-      db withDynSession ( produce += (newItem.name, 0, newItem.price) )
-      s"Successfully added $newItem"
-    } match {
-      case Success(fully) => Created(UpdateResult(fully))
-      case Failure(why)   => InternalServerError(why.toString)
     }
   }
 

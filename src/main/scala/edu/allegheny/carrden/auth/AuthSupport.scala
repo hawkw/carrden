@@ -1,4 +1,5 @@
-package edu.allegheny.carrden.auth
+package edu.allegheny.carrden
+package auth
 
 import org.scalatra.auth.strategy.{BasicAuthStrategy, BasicAuthSupport}
 import org.scalatra.auth.{ScentrySupport, ScentryConfig}

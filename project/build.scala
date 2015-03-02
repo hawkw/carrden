@@ -27,6 +27,7 @@ object CarrdenInventoryBuild extends Build {
         "org.scalatra"                %%  "scalatra-scalate"  % ScalatraVersion,
         "org.scalatra"                %%  "scalatra-specs2"   % ScalatraVersion   % "test",
         "org.scalatra"                %%  "scalatra-json"     % ScalatraVersion,
+        "org.scalatra"                %% "scalatra-auth"      % ScalatraVersion,
         "org.json4s"                  %%  "json4s-jackson"    % "3.2.11",
         "com.typesafe.slick"          %%  "slick"             % SlickVersion,
         "com.typesafe.scala-logging"  %%  "scala-logging"     % "3.1.0",

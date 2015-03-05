@@ -9,8 +9,8 @@ object CarrdenInventoryBuild extends Build {
   val Organization = "edu.allegheny"
   val Name = "Carrden Inventory"
   val Version = "0.0.0"
-  val ScalaVersion = "2.11.4"
-  val ScalatraVersion = "2.3.0"
+  val ScalaVersion = "2.11.5"
+  val ScalatraVersion = "2.4.0.M2"
   val SlickVersion = "3.0.0-M1"
 
   lazy val project = Project (
@@ -27,7 +27,7 @@ object CarrdenInventoryBuild extends Build {
         "org.scalatra"                %%  "scalatra-scalate"  % ScalatraVersion,
         "org.scalatra"                %%  "scalatra-specs2"   % ScalatraVersion   % "test",
         "org.scalatra"                %%  "scalatra-json"     % ScalatraVersion,
-        "org.scalatra"                %%  "scalatra-auth"     % "2.4.0.M2",
+        "org.scalatra"                %%  "scalatra-auth"     % ScalatraVersion,
         "org.json4s"                  %%  "json4s-jackson"    % "3.2.11",
         "com.typesafe.slick"          %%  "slick"             % SlickVersion,
         "com.typesafe.scala-logging"  %%  "scala-logging"     % "3.1.0",
